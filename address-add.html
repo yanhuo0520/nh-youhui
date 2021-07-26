@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>添加地址</title>
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <!-- 引入样式文件 -->
+  <link rel="stylesheet" href="index.css" />
+  <!-- 引入 Vue 和 Vant 的 JS 文件 -->
+  <script src="axios.min.js"></script>
+  <script src="vue.min.js"></script>
+  <script src="vant.min.js"></script>
+  <script src="alipayjsapi.min.js"></script>
+
+
+  <!-- 公共文件 -->
+  <script src="mainPublic.js"></script>
+  <link rel="stylesheet" href="public.css" />
+  <!-- 自定义样式 -->
+  <style>
+    html,
+    body {
+      height: 100%;
+      background: #f4f4f4;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    .addAddress {
+      font-size: 14px;
+      height: 100%;
+    }
+
+    /* 标题 */
+    .van-nav-bar--fixed {
+      z-index: 999;
+    }
+
+    .van-nav-bar__content {
+      background: #00c4ac;
+    }
+
+    .van-nav-bar .van-icon {
+      color: #ffffff;
+    }
+
+    .van-nav-bar__title {
+      color: #ffffff;
+    }
+
+    .van-hairline--bottom::after {
+      border-bottom-width: 0
+    }
+
+    .van-nav-bar__right img {
+      width: 26px;
+    }
+
+    .content {
+      padding-top: 46px;
+    }
+    .content.ifNewBank {
+      padding-top: 0;
+    }
+
+    .default {
+      margin-top: 10px;
+    }
+
+    .select-area {
+      color: #c8c9cc;
+    }
+
+    .btn {
+      margin: 10px;
+      text-align: center;
+      border-radius: 20px;
+      padding: 8px 18px;
+    }
+
+    .btn.save-btn {
+      margin-top: 30px;
+      color: #fff;
+      background: linear-gradient(180deg, #00dcc0, #00c4ac 80%);
+    }
+
+    .btn.delete-btn {
+      background: #ffffff;
+      border: 1px solid #dcdee0;
+    }
+
+    /* 弹框样式 */
+    .van-popup .main-title {
+      padding: 10px 16px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 46px;
+    }
+
+    .van-popup .main-title .van-icon-close {
+      font-size: 18px;
+    }
+
+    .van-tabs__line {
+      background-color: #00c4ac;
+    }
+
+    .van-popup .van-tabs {
+      height: calc(100% - 46px);
+    }
+
+    .van-popup .van-tabs .van-tabs__content {
+      height: calc(100% - 44px);
+      overflow-y: auto;
+    }
+
+    .van-popup .list-item {
+      border-top: 1px solid #eeeeee;
+      padding: 10px 15px;
+      color: #333;
+    }
+    .loading-overlay{
+      background-color: rgba(0,0,0,.6);
+    }
+    .loading-overlay .wrapper{
+      text-align: center;
+      margin-top: 60%;
+    }
+
+    .wrapperTip{
+      background: #fff;
+      width: 60%;
+      margin-left: 20%;
+      border-radius: 10px;
+    }
+    .wrapperTip .title{
+      line-height: 42px;
+      font-size: 16px;
+      border-bottom: 1px solid #eeeeee;
+    }
+    .wrapperTip .content-desc{
+      padding: 20px 10px;
+    }
+    .wrapperTip .content-desc img{
+      margin-top: 10px;
+      width: 70px;
+    }
+    .wrapperTip .btn-content{
+      padding: 0 10px;
+      display: flex;
+      justify-content: center;
+    }
+    .wrapperTip .btn-content .btn{
+      width: 45%;
+      margin-bottom: 15px;
+    }
+    .wrapperTip .btn-content .btn.cancel{
+      border: 1px solid #dcdee0;
+    }
+    .wrapperTip .btn-content .btn.sure{
+      color: #ffffff;
+      background: linear-gradient(180deg, #00dcc0, #00c4ac 80%);
+    }
+	
+	/* 回到首页悬浮按钮 */
+	.goIndexTip{
+		position: fixed;
+		right: 5px;
+		top: 76%;
+		border-radius: 50%;
+		height: 48px;
+		width: 48px;
+		display: grid;
+		text-align: center;
+		font-size: 12px;
+		padding: 6px;
+		background: #FFFFFF;
+		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+	}
+	.goIndexTip img{
+		width: 20px;
+		height: 20px;
+		margin: 0 auto;
+	}
+  </style>
+</head>
+
+<body>
+  <div id="addAddress" class="addAddress">
+    <van-nav-bar v-if="!ifNewBank" :title="title" fixed left-arrow @click-left="onClickLeft">
+      <!-- <template #right>
+        <img src="./images/close.png" />
+      </template> -->
+    </van-nav-bar>
+    <div class="content" :class="{'ifNewBank': ifNewBank}">
+      <van-cell-group>
+        <van-field v-model="name" right-icon="manager-o" placeholder="收货人姓名" clearable></van-field>
+        <van-field v-model="mobile" right-icon="phone-o" placeholder="手机号" clearable></van-field>
+        <van-cell is-link @click="showAddrPopup">
+          <span v-if="streetCode">{{location}}</span>
+          <span class="select-area" v-if="!streetCode">请选择地区</span>
+        </van-cell>
+        <van-field v-model="address" placeholder="详细地址: 如道路、门牌号、小区、楼栋号" rows="2" autosize type="textarea"
+          clearable></van-field>
+      </van-cell-group>
+
+
+      <van-cell title="设置默认地址" class="default" @click="defaultChange()">
+        <template #right-icon>
+          <van-switch v-model="checked" size="24" active-color="#00c4ac" />
+        </template>
+      </van-cell>
+      <p class="btn save-btn" @click="onSave()">保存</p>
+      <p class="btn delete-btn" v-if="id" @click="deleteAddress()">删除</p>
+
+    </div>
+
+    <!-- 加载中，编辑地址时用到 -->
+    <van-overlay :show="loadingShow" class="loading-overlay">
+      <div class="wrapper" @click.stop>
+        <van-loading type="spinner" vertical>加载中……</van-loading>
+      </div>
+    </van-overlay>
+
+    <!-- 设置收货地址提醒 -->
+    <van-overlay :show="addressTipShow" class="loading-overlay">
+      <div class="wrapper wrapperTip" @click.stop>
+        <p class="title">请先设置收货地址</p>
+        <div class="content-desc">
+          <p>你还没有设置收货地址，请先点击确认进行设置</p>
+          <img src="./images/address.png" >
+        </div>
+        <div class="btn-content">
+          <p class="btn cancel" @click="cancelSet()">取消</p>
+          <p class="btn sure" @click="addressTipShow = false">确定</p>
+        </div>
+
+      </div>
+    </van-overlay>
+    
+
+    <!-- 地区弹框 -->
+    <van-popup v-model="chooseAddrShow" class="addr-popup-con" position="bottom" :style="{ height: '60%' }" round
+      @close="closePopup">
+      <div class="main-title">
+        <span>请选择地区</span>
+        <van-icon name="close" @click="chooseAddrShow = false"></van-icon>
+      </div>
+      <van-tabs v-model="active" title-active-color="#00c4ac" @change="changeTab">
+        <van-tab :title="provinceText ? provinceText : '请选择'">
+          <div class="list-item van-hairline--bottom" v-for="(item,index) in provinceList" :key="index"
+            @click="selectProvice(item,index)">
+            <span :class="{'is-select': item.isSelect}">{{item.name}}</span>
+            <van-icon name="success" color="#00c4ac" v-if="item.isSelect"></van-icon>
+          </div>
+        </van-tab>
+        <template>
+          <van-tab :title="cityText ? cityText : '请选择'">
+            <div class="list-item van-hairline--bottom" v-for="(item,index) in cityList" :key="index"
+              @click="selectCity(item,index)">
+              <span :class="{'is-select': item.isSelect}">{{item.name}}</span>
+              <van-icon name="success" color="#00c4ac" v-if="item.isSelect"></van-icon>
+            </div>
+          </van-tab>
+        </template>
+        <template>
+          <van-tab :title="countyText ? countyText : '请选择'">
+            <div class="list-item van-hairline--bottom" v-for="(item,index) in countyList" :key="index"
+              @click="selectCounty(item,index)">
+              <span :class="{'is-select': item.isSelect}">{{item.name}}</span>
+              <van-icon name="success" color="#00c4ac" v-if="item.isSelect"></van-icon>
+            </div>
+          </van-tab>
+        </template>
+        <template>
+          <van-tab :title="streetText ? streetText : '请选择'">
+            <div class="list-item van-hairline--bottom" v-for="(item,index) in streetList" :key="index"
+              @click="selectStreet(item,index)">
+              <span :class="{'is-select': item.isSelect}">{{item.name}}</span>
+              <van-icon name="success" color="#00c4ac" v-if="item.isSelect"></van-icon>
+            </div>
+          </van-tab>
+        </template>
+      </van-tabs>
+    </van-popup>
+	
+	
+	<div class="goIndexTip" @click="goIndexTip()">
+		<img src="images/index.png" />
+		首页
+	</div>
+  </div>
+
+  <script>
+    // 在 #app 标签下渲染一个按钮组件
+    new Vue({
+      el: '#addAddress',
+      data: {
+        JumpUrl: {
+          addrApi: baseUrl('/api/nhunion/address'), // 积分商城--获取省市区街道居委会五级地区
+          addrDetailApi: baseUrl('/api/nhunion/address_detail'), // 积分商城--获取单个地址详细信息
+          saveApi: baseUrl('/api/nhunion/address_save'), // 积分商城--保存添加或编辑的收货地址信息
+          deleteApi: baseUrl('/api/nhunion/address_delete'), // 积分商城--删除地址
+        },
+        token1: localStorage.getItem("token1"),
+        // token1: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTYwNDc4MDQsImp0aSI6ImVhNzlkYzQ0MTMzNDAxM2Q2ZGQ0NGJmYzJhNDQ0ZTZmIiwiaXNzIjoiMTI3LjAuMC4xIiwibmJmIjoxNjE2MDQ3ODA0LCJleHAiOjE2MjkxODc4MDQsImRhdGEiOnsibmhfaWQiOjF9fQ.bmvCG3lfbF5StbEa0yCiiwmqwtxzZYJfJUm0N1abX3Y',
+
+        ifNewBank: true,
+
+        loadingShow: false,
+        addressTipShow: false,
+        name: '',
+        mobile: '',
+        location: '',
+        address: '',
+        checked: false,
+        is_default: 0, // 是否默认地址：0否，1是
+        chooseAddrShow: false,
+        active: '1',
+        proviceCode: '',// 省code
+        cityCode: '', // 市code
+        countyCode: '', // 县code
+        streetCode: '',// 街道code
+
+        provinceText: '', //省text
+        cityText: '', //市text
+        countyText: '', //区text
+        streetText: '', //街道text
+
+        provinceList: [], //省列表
+        cityList: [], //市列表
+        countyList: [], //区列表
+        streetList: [], //街道列表
+        id: '',
+        title: "新增地址"
+      },
+      mounted() {
+        if(this.ifNewBank){
+          ready(function(e){
+           // 判断APP是否已登录
+            AlipayJSBridge.call('abcGetInfo', {
+              name:'mbLoginStatus'
+            }, function(result){
+              if(result.mbLoginStatus != '1'){
+                // alert('未登录'); 
+                AlipayJSBridge.call('startApp',{ // 调起掌银登录
+                  appId:'31009112',// 固定值
+                  param:{
+                    showProgress:'NO', 
+                    backBehavior:'back', 
+                    //jumpFrom实现登录后跳转，可选  
+                    //business_login 固定传0  
+                    //business_kind 1 离线包 2 联机H5 
+                    //url business_kind为1时是appid business_kind为2是H5链接  
+                    jumpFrom:{
+                      business_kind:'2',
+                      business_login:'0',
+                      url:'https://szxc.ha.abchina.com/yxhl/address-add.html'
+                    } 
+                  },  
+                },function(result){ 
+                    // 已调起登录页面 
+                });
+              }
+            })
+          })
+        }
+
+        document.addEventListener('optionMenu', function(e) {
+          if(e.data.index == 0) {
+            // 用户点击了第一个按钮。setOptionMenu 方法中，设置了第一个按钮为“关闭”
+            AlipayJSBridge.call('abcExitWebAndBackToHome');
+          }
+        })
+        
+        if(this.id){
+          let that = this;
+          that.title = "编辑地址";
+          axios({
+            method: 'post',
+            url: that.JumpUrl.addrDetailApi,
+            data: {
+              id: that.id,
+              token: that.token1
+            }
+          }).then(function (res) {
+            that.loadingShow = false
+            if (res.data.errno == 0) {
+              that.proviceCode = res.data.data.provinceCode
+              that.cityCode = res.data.data.cityCode
+              that.countyCode = res.data.data.areaCode
+              that.streetCode = res.data.data.streetCode
+
+              that.provinceText = res.data.data.province
+              that.cityText = res.data.data.city
+              that.countyText = res.data.data.area
+              that.streetText = res.data.data.street
+
+              
+              that.name = res.data.data.name
+              that.mobile = res.data.data.mobile
+              that.location = that.provinceText + '' + that.cityText + '' + that.countyText + '' + that.streetText;
+              that.address = res.data.data.address
+              if(res.data.data.is_default == 1){ // 是否默认地址：0否，1是
+                that.checked = true
+                that.is_default = 1
+              }else{
+                that.checked = false
+                that.is_default = 0
+              }
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          }).catch(function (error) { //请求失败
+            console.log('error', error);
+          })
+        }else{
+          this.title = "新增地址";
+        }
+        
+      },
+      methods: {
+        onClickLeft() {
+          window.history.go(-1);
+        },
+		goIndexTip(){
+			window.location.href = 'activity.html'
+		},
+        // 显示地址选择弹出框
+        showAddrPopup() {
+          this.getProviceList()
+          this.chooseAddrShow = true
+        },
+        closePopup() {
+          this.chooseAddrShow = false
+        },
+        cancelSet(){
+          window.history.go(-1);
+        },
+        // 获取省列表
+        getProviceList() {
+          let that = this;
+          axios({
+            method: 'post',
+            url: that.JumpUrl.addrApi,
+            data: {
+              level: 1,
+              code: '',
+              token: that.token1
+            }
+          }).then(function (res) {
+            if (res.data.errno == 0) {
+              res.data.data.forEach(item => {
+                if(item.code == that.proviceCode){
+                  item.isSelect = true
+                }else{
+                  item.isSelect = false
+                }
+              })
+              that.provinceList = res.data.data
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          }).catch(function (error) { //请求失败
+            console.log('error', error);
+          })
+        },
+        // 获取市列表
+        getCityList() {
+          let that = this;
+          axios({
+            method: 'post',
+            url: that.JumpUrl.addrApi,
+            data: {
+              level: 2,
+              code: that.proviceCode,
+              token: that.token1
+            }
+          }).then(function (res) {
+            if (res.data.errno == 0) {
+              res.data.data.forEach(item => {
+                if(item.code == that.cityCode){
+                  item.isSelect = true
+                }else{
+                  item.isSelect = false
+                }
+              })
+              that.cityList = res.data.data
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          }).catch(function (error) { //请求失败
+            console.log('error', error);
+          })
+        },
+        // 获取区列表
+        getCountyList() {
+          let that = this;
+          axios({
+            method: 'post',
+            url: that.JumpUrl.addrApi,
+            data: {
+              level: 3,
+              code: that.cityCode,
+              token: that.token1
+            }
+          }).then(function (res) {
+            if (res.data.errno == 0) {
+              res.data.data.forEach(item => {
+                if(item.code == that.countyCode){
+                  item.isSelect = true
+                }else{
+                  item.isSelect = false
+                }
+              })
+              that.countyList = res.data.data
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          }).catch(function (error) { //请求失败
+            console.log('error', error);
+          })
+        },
+        // 获取街道列表
+        getStreetList() {
+          let that = this;
+          axios({
+            method: 'post',
+            url: that.JumpUrl.addrApi,
+            data: {
+              level: 4,
+              code: that.countyCode,
+              token: that.token1
+            }
+          }).then(function (res) {
+            if (res.data.errno == 0) {
+              res.data.data.forEach(item => {
+                if(item.code == that.streetCode){
+                  item.isSelect = true
+                }else{
+                  item.isSelect = false
+                }
+              })
+              that.streetList = res.data.data
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          }).catch(function (error) { //请求失败
+            console.log('error', error);
+          })
+        },
+        // 选择省
+        selectProvice(curItem, curIndex) {
+          let proviceList = this.provinceList
+          proviceList.forEach((item, index) => {
+            if (curIndex == index) {
+              item.isSelect = true
+            } else {
+              item.isSelect = false
+            }
+          })
+          this.provinceText = curItem.name
+          this.proviceCode = curItem.code
+          this.cityText = ''//市text
+          this.countyText = '' //区text
+          this.streetText = '' //街道
+          this.getCityList()
+          this.active = 1;
+        },
+        // 选择市
+        selectCity(curItem, curIndex) {
+          let cityList = this.cityList
+          cityList.forEach((item, index) => {
+            if (curIndex == index) {
+              item.isSelect = true
+            } else {
+              item.isSelect = false
+            }
+          })
+          this.cityText = curItem.name
+          this.cityCode = curItem.code
+          this.countyText = '' //区text
+          this.streetText = '' //街道
+          this.getCountyList()
+          this.active = 2;
+
+        },
+        // 选择区
+        selectCounty(curItem, curIndex) {
+          let countyList = this.countyList
+          countyList.forEach((item, index) => {
+            if (curIndex == index) {
+              item.isSelect = true
+            } else {
+              item.isSelect = false
+            }
+          })
+          this.countyText = curItem.name
+          this.countyCode = curItem.code
+          this.streetText = '' //街道
+          this.getStreetList()
+          this.active = 3;
+
+        },
+        // 选择街道
+        selectStreet(curItem, curIndex) {
+          let streetList = this.streetList
+          streetList.forEach((item, index) => {
+            if (curIndex == index) {
+              item.isSelect = true
+            } else {
+              item.isSelect = false
+            }
+          })
+          this.streetText = curItem.name
+          this.streetCode = curItem.code
+          this.location = this.provinceText + '' + this.cityText + '' + this.countyText + '' + this.streetText;
+          this.chooseAddrShow = false
+
+        },
+        // 切换tab栏
+        changeTab(name, title) {
+          if(!this.proviceCode && name > 0){
+            this.$toast("请先选择省份");
+            return
+          }
+          if(!this.cityCode && name > 1){
+            this.$toast("请先选择市")
+            return
+          }
+          if(!this.countyCode && name > 2){
+            this.$toast("请先选择区")
+            return
+          }
+          if(name == 1 && this.cityCode){
+            this.getCityList()
+          }
+          if(name == 2 && this.countyCode){
+            this.getCountyList()
+          }
+          if(name == 3 && this.streetCode){
+            this.getStreetList()
+          }
+        },
+        // 是否设置为默认地址
+        defaultChange(){
+          if(this.checked){
+            this.is_default = 1
+          }else{
+            this.is_default = 0
+          }
+        },
+        onSave() {
+          let that = this;
+          let reg = /^1[0-9]{10}$/;
+					if(!that.name) {
+						that.$toast('请输入收货人姓名')
+						return false;
+					}
+					if (that.mobile.length == 0) {
+						that.$toast('请输入手机号')
+						return false;
+					} else if (that.mobile.length <= 10 || !reg.test(that.mobile)) {
+						that.$toast('请输入正确格式手机号')
+						return false;
+					}
+					if(!that.streetCode) {
+            that.$toast('请选择省市区!')
+            return
+          }
+					if(!that.address) {
+						that.$toast('请输入详细地址')
+						return false;
+					}
+          axios({
+            method: 'post',
+            url: that.JumpUrl.saveApi,
+            data: {
+              token: that.token1,
+              is_default: that.is_default,
+              name: that.name,
+              mobile: that.mobile,
+              provinceCode: that.proviceCode,
+              cityCode: that.cityCode,
+              areaCode: that.countyCode,
+              streetCode: that.streetCode,
+              villageCode: '',
+              address: that.address,
+              id: that.id
+            }
+          }).then(function(res){
+            if (res.data.errno == 0) {
+              that.$toast("保存成功")
+              that.proviceCode = ''
+              that.cityCode = ''
+              that.countyCode = ''
+              that.streetCode = ''
+
+              that.provinceText = ''
+              that.cityText = ''
+              that.countyText = ''
+              that.streetText = ''
+
+              that.address = ''
+              that.location = ''
+              that.name = ''
+              that.mobile = ''
+              that.checked = false
+
+              that.provinceList = []
+              that.cityList = []
+              that.countyList = []
+              that.streetList = []
+
+              window.history.go(-1);
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          }).catch(function (error) { //请求失败
+            console.log('error', error);
+          })
+
+        },
+        // 删除地址
+        deleteAddress(){
+          let that = this;
+          that.$dialog.confirm({
+						title: '提示',
+						message: '确认删除吗?',
+					}).then(()=>{
+            axios({
+              method: 'post',
+              url: that.JumpUrl.deleteApi,
+              data: {
+                id: that.id,
+                token: that.token1
+              }
+            }).then(function (res){
+              if (res.data.errno == 0) {
+                that.$toast("删除成功");
+                window.history.go(-1);
+              }else{
+                that.$toast(res.data.errmsg)
+              }
+            }).catch(function (error) { //请求失败
+              console.log('error', error);
+            })
+          })
+          
+        }
+
+      },
+      created() {
+        if (window.navigator.userAgent.indexOf('Bankabc/Portal') > -1){
+          this.ifNewBank = true
+        }else{
+          this.ifNewBank = false
+        }
+        this.id = getQueryString('address_id'); //获取id的值
+        if(this.id){
+          this.loadingShow = true
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

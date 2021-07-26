@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>现金券兑换</title>
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <!-- 引入样式文件 -->
+  <link rel="stylesheet" href="index.css" />
+  <!-- 引入 Vue 和 Vant 的 JS 文件 -->
+  <script src="axios.min.js"></script>
+  <script src="vue.min.js"></script>
+  <script src="vant.min.js"></script>
+  <script src="alipayjsapi.min.js"></script>
+
+  <!-- 公共文件 -->
+  <script src="mainPublic.js"></script>
+  <link rel="stylesheet" href="public.css" />
+  <!-- 自定义样式 -->
+  <style>
+    html,
+    body {
+      height: 100%;
+      background: #f4f4f4;
+    }
+
+    .exchange {
+      font-size: 14px;
+      height: 100%;
+      background: #F4F4F4 linear-gradient(180deg,#00c4ac 47%, #f5f5f6) no-repeat;
+      background-size: 100% 300px;
+    }
+
+    /* 标题 */
+    .van-nav-bar--fixed {
+      z-index: 999;
+    }
+
+    .van-nav-bar__content {
+      background: #00c4ac;
+    }
+
+    .van-nav-bar .van-icon {
+      color: #ffffff;
+    }
+
+    .van-nav-bar__title {
+      color: #ffffff;
+    }
+
+    .van-hairline--bottom::after {
+      border-bottom-width: 0
+    }
+
+    .van-nav-bar__right img {
+      width: 26px;
+    }
+    .top-content{
+      padding: 70px 20px 20px 20px;
+      margin: 0 10px;
+      background: url(./images/top_bg.png) no-repeat bottom center;
+      background-size: 100% 160px;
+    }
+    .top-content.ifNewBank{
+      padding-top: 24px;
+    }
+    .top-content .top {
+      color: #9B9B9B;
+      font-size: 15px;
+    }
+    .top-content .top .title .tip-big-num{
+      font-size: 40px;
+      color: #333333;
+      font-weight: bold;
+    }
+    .top-content .bottom{
+      position: relative;
+      margin-top: 20px;
+    }
+    .top-content .bottom .title{
+      color: #353535;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .top-content .bottom .desc{
+      color: #888888;
+      font-size: 13px;
+    }
+    .top-content .bottom .desc span{
+      color: #00C3AC;
+      font-weight: bold;
+    }
+    .top-content .bottom .joinBtn{
+      position: absolute;
+      right: 0;
+      bottom: 10px;
+      color: #333333;
+      font-weight: bold;
+      border: 1px solid #bfdcd9;
+      padding: 3px 8px;
+      border-radius: 30px;
+    }
+    .conent{
+      margin: 10px;
+      padding: 10px;
+      border-radius: 15px;
+      background: #ffffff;
+    }
+    .main-bg{
+      height: 32px;
+      margin-top: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .main-title{
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .tip-list{
+      position: relative;
+      padding-right: 15px;
+    }
+    .tip-list::after{
+      position: absolute;
+      content: '';
+      top: 5px;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent transparent rgba(136, 136, 136, 0.5);
+    }
+    img{
+      max-width: 100%;
+    }
+    .shop{
+      width: 48.2%;
+      margin-top: 15px;
+      display: inline-block;
+    }
+    .shop:nth-child(2n){
+      margin-left: 2%;
+    }
+    .shop .bg-cont{
+      background: #FAFAFA;
+      padding: 5px 10px;
+      border-radius: 10px;
+    }
+    .shop .img-cont{
+	  text-align: center;
+	  padding: 10px;
+	  background: #FAFAFA;
+	  border-radius: 10px;
+	  position: relative;
+	  height: 0;
+	  padding-bottom: 96px;
+    }
+    .shop .img-cont::after{
+      position: absolute;
+      content: '';
+      left: 10px;
+      right: 10px;
+      bottom: 0;
+      height: 1px;
+      border-bottom: 1px dashed #dfdfdf;
+    }
+    .shop .shop-img{
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		max-width: calc(100% - 20px);
+		max-height: calc(100% - 20px);
+    }
+    .shop .end-cont{
+      padding:  0 10px;
+      position: absolute;
+      top: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 100%;
+      background: rgba(0  , 0, 0, 0.3);
+    }
+    .shop p{
+      margin-top: 3px;
+    }
+    .shop .bg-cont{
+      background: #FAFAFA;
+      border-radius: 10px;
+    }
+    .shop .name{
+      color: #353535;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space:nowrap;
+    }
+    .shop .price{
+      color: #F66002;
+      font-weight: bold;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space:nowrap;
+    }
+    .shop .change{
+      color: #00C4AD;
+      font-weight: bold;
+      display: inline-block;
+      background: #eef8f7;
+      border-radius: 20px;
+      padding: 3px 12px;
+      margin-top: 10px;
+      margin-left: calc(50% - 49px);
+    }
+    .shop .change img{
+      width: 18px;
+      vertical-align: middle;
+      margin-top: -2px;
+      margin-left: 5px;
+    }
+    .shop .change.end-change{
+      color: #fff;
+      background: #eeeeee;
+    }
+    .null {
+      padding: 30px 0 10px 0;
+      color: #cccccc;
+      text-align: center;
+      position: relative;
+    }
+
+    .loading{
+      width: 100%;
+      text-align: center;
+    }
+
+    .quan-btn{
+      margin-left: 10px;
+      color: #333333;
+      font-weight: bold;
+      border: 1px solid #bfdcd9;
+      padding: 4px 8px;
+      border-radius: 30px;
+    }
+	
+	/* 回到首页悬浮按钮 */
+	.goIndexTip{
+		position: fixed;
+		right: 5px;
+		top: 76%;
+		border-radius: 50%;
+		height: 48px;
+		width: 48px;
+		display: grid;
+		text-align: center;
+		font-size: 12px;
+		padding: 6px;
+		background: #FFFFFF;
+		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+	}
+	.goIndexTip img{
+		width: 20px;
+		height: 20px;
+		margin: 0 auto;
+	}
+  </style>
+</head>
+
+<body>
+  <div id="exchange" class="exchange">
+    <van-nav-bar v-if="!ifNewBank" title="现金券兑换" fixed left-arrow  @click-left="onClickLeft">
+      <!-- <template #right>
+        <img src="./images/close.png" />
+      </template> -->
+    </van-nav-bar>
+    <div class="top-content" :class="{'ifNewBank': ifNewBank}">
+      <div class="top">
+        我的现金券
+        <p class="title"><span class="tip-big-num">{{scoreTotal}}</span>元  <span class="quan-btn" @click="codeList()">我的兑换码</span></p>
+      </div> 
+      <div class="bottom">
+        <p class="title">参与活动得现金券</p>
+        <p class="desc">您有{{scoretop1}}个待参与活动,可得<span>  {{scoretop2}}  </span>元现金券</p>
+        <p class="joinBtn" @click.prevent="goJoin()">去参加</p>
+      </div>
+    </div>
+    <div class="conent">
+      <div class="main-bg">
+        <p class="main-title">兑换商品</p>
+        <p class="tip-list" @click="changeList()">兑换记录</p>
+      </div>
+      <div class="shop-cont">
+        <div class="shop" v-for="(item, index) in list" :key="index" >
+          <div class="img-cont">
+            <img :src="item.thumb" class="shop-img" />
+            <div v-if="item.storage <= 0" class="end-cont">
+              <img src="./images/end.png" />
+            </div>
+          </div>
+          <div class="bg-cont">
+            <p class="name">{{item.goods_name}}</p>
+            <!-- <p v-if="item.if_sheer == 1" class="price">{{item.jf}}元现金券</p> -->
+            <!-- 实物类积分＋钱 -->
+            <p v-if="item.if_sheer == 0 && item.goods_type == 3" class="price">{{item.jf}}元现金券+{{item.retail_price}}元</p>
+            <p v-else class="price">{{item.jf}}元现金券</p>
+          </div>
+          <p v-if="item.storage > 0" class="change" @click.prevent="exchange(item.goods_id, item.goods_type)">立即兑换<img src="./images/left-circle.png" /> </p>
+          <p v-if="item.storage <= 0" class="change end-change">立即兑换<img src="./images/left-circle.png" v-if="item.storage > 0" /> </p>
+        </div>
+        
+        <div class="loading" v-if="ifLoading">
+          <van-loading type="spinner" size="24px" />
+        </div>
+        <div v-if="list == '' && nullMore">
+          <p class="null">暂无数据</p>
+        </div>
+        <div v-else-if="!ifLoading">
+          <p class="null nullMore2">没有更多了</p>
+        </div>
+   
+      </div>
+    </div>
+	
+	<div class="goIndexTip" @click="goIndexTip()">
+		<img src="images/index.png" />
+		首页
+	</div>
+  </div>
+
+  <script>
+    // 在 #app 标签下渲染一个按钮组件
+    new Vue({
+      el: '#exchange',
+      data: {
+        JumpUrl: {
+          getScore: baseUrl('/api/nhunion/shop_user_score'), // 积分商城--积分信息
+          goodsList: baseUrl('/api/nhunion/goods_list'),  // 积分商城--商品列表
+        },
+        // token1: localStorage.getItem("token1"),
+        token1: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjM4OTk0NjUsImp0aSI6IjUwOGIwMzdlMDlmNTFhNWJiMzFhNGNjOTBiNjYwYTk5IiwiaXNzIjoiMTI3LjAuMC4xIiwibmJmIjoxNjIzODk5NDY1LCJleHAiOjE2MzcwMzk0NjUsImRhdGEiOnsibmhfaWQiOjM0Nn19.wnFVrFWxC01GNdHhRYHNMhJ9eDrueqWhA0Er_87X5Ps',
+        ifNewBank: true,
+
+        scoreTotal: 0,
+        scoretop1: 0,
+        scoretop2: 0,
+        page: 1, //初始化当前页
+        pageSize: 10,
+        endpage: 1, //假数据，默认总共两页数据
+        loading: false, //是否为加载中状态
+        list: [],
+        nullMore: true,
+        ifLoading: false,
+      },
+      mounted() {
+        if(this.ifNewBank){
+          ready(function(e){
+           // 判断APP是否已登录
+            AlipayJSBridge.call('abcGetInfo', {
+              name:'mbLoginStatus'
+            }, function(result){
+              if(result.mbLoginStatus != '1'){
+                // alert('未登录'); 
+                AlipayJSBridge.call('startApp',{ // 调起掌银登录
+                  appId:'31009112',// 固定值
+                  param:{
+                    showProgress:'NO', 
+                    backBehavior:'back', 
+                    //jumpFrom实现登录后跳转，可选  
+                    //business_login 固定传0  
+                    //business_kind 1 离线包 2 联机H5 
+                    //url business_kind为1时是appid business_kind为2是H5链接  
+                    jumpFrom:{
+                      business_kind:'2',
+                      business_login:'0',
+                      url:'https://szxc.ha.abchina.com/yxhl/exchange.html'
+                    } 
+                  },  
+                },function(result){ 
+                    // 已调起登录页面 
+                });
+              }
+            })
+          })
+        }
+        
+        document.addEventListener('optionMenu', function(e) {
+          if(e.data.index == 0) {
+            // 用户点击了第一个按钮。setOptionMenu 方法中，设置了第一个按钮为“关闭”
+            AlipayJSBridge.call('abcExitWebAndBackToHome');
+          }
+        })
+        
+        this.getScore();
+        // 滚动监听触发scrollBottom事件
+        window.addEventListener("scroll", this.scrollBottom, true);
+        this.getList();
+      },
+      methods: {
+        onClickLeft() {
+          window.location.href = 'activity.html'
+        },
+        goIndexTip(){
+          window.location.href = 'activity.html'
+        },
+        // 去参加
+        goJoin(){
+          window.location.href = 'activity.html'
+        },
+        // 我的兑换码列表
+        codeList(){
+          window.location.href = 'code-list.html'
+        },
+        // 兑换记录
+        changeList(){
+          window.location.href = 'change-list.html'
+        },
+        getScore(){
+          let that = this
+          axios({
+            method: 'post',
+            url: that.JumpUrl.getScore,
+            data: {
+              token: that.token1,
+            }
+          }).then(function(res){
+            if(res.data.errno == 0){
+              that.scoreTotal = res.data.left_jf
+              that.scoretop1 = res.data.season_pre_join_count
+              that.scoretop2 = res.data.season_join_get_jf
+            }else if(res.data.errno == 11){
+              that.$toast(res.data.errmsg)
+              setTimeout(function(){
+                window.location.href = 'activity.html'
+              }, 1000)
+              
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          })
+        },
+        // 滚动监听
+        scrollBottom() {
+          // 	滚动到页面底部时翻页功能，当前页小于总页数时触发
+          if (this.page < this.endpage) {
+            let scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight); /*文档完整的高度*/
+            let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;  //滚动高度
+            let clientHeight = document.documentElement.clientHeight; /*当前可视高度*/
+            let toBottom = scrollHeight - clientHeight - scrollTop;
+            if (toBottom < 10 && !this.loading) {
+              this.loading = true; //触发滚动机制，加载状态改变
+              this.page++ //当前页加1
+              this.getList()
+            }
+          }
+        },
+        getList() {
+          let that = this;
+          that.ifLoading = true
+          
+          axios({
+            method: 'post',
+            url: that.JumpUrl.goodsList,
+            data: {
+              token: that.token1,
+              page: that.page, 
+              size: that.pageSize
+            }
+          }).then(function(res){
+            that.ifLoading = false
+            that.loading = false
+            if(res.data.errno == 0){
+              that.endpage = res.data.total_page
+              if(res.data.total_page == 1){
+                that.list = res.data.data
+                that.nullMore = true
+              }else if(res.data.total_page > that.page){
+                that.list.push(...res.data.data)
+              }else if(that.page == res.data.total_page){
+                that.list.push(...res.data.data)
+                that.nullMore = true
+              }
+              
+            }else if(res.data.errno == 11){
+              that.$toast(res.data.errmsg)
+              setTimeout(function(){
+                window.location.href = 'activity.html'
+              }, 1000)
+              
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          })
+
+
+        },
+        // 立即兑换
+        exchange(goods_id, goods_type){
+          if(goods_type == 3){
+            window.location.href = "shop-detail.html" + '?' + 'id=' + goods_id + '&goods_type=' + goods_type;
+          }else{
+            window.location.href = "shop-detail-un.html" + '?' + 'id=' + goods_id + '&goods_type=' + goods_type;
+          }
+
+        }
+
+
+      },
+      created() {
+        if (window.navigator.userAgent.indexOf('Bankabc/Portal') > -1){
+          this.ifNewBank = true
+        }else{
+          this.ifNewBank = false
+        }
+      }
+      
+    });
+  </script>
+</body>
+
+</html>

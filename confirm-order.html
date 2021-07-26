@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>确认订单</title>
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <!-- 引入样式文件 -->
+  <link rel="stylesheet" href="index.css" />
+  <!-- 引入 Vue 和 Vant 的 JS 文件 -->
+  <script src="axios.min.js"></script>
+  <script src="vue.min.js"></script>
+  <script src="vant.min.js"></script>
+  <script src="alipayjsapi.min.js"></script>
+
+  <!-- 公共文件 -->
+  <script src="mainPublic.js"></script>
+  <link rel="stylesheet" href="public.css" />
+  <!-- 自定义样式 -->
+  <style>
+    html,
+    body {
+      height: 100%;
+    }
+
+    .confirmOrder {
+      font-size: 14px;
+      height: 100%;
+	  background: #f5f5f5;
+    }
+
+    /* 标题 */
+    .van-nav-bar--fixed {
+      z-index: 999;
+    }
+
+    .van-nav-bar__content {
+      background: #00c4ac;
+    }
+
+    .van-nav-bar .van-icon {
+      color: #ffffff;
+    }
+
+    .van-nav-bar__title {
+      color: #ffffff;
+    }
+
+    .van-hairline--bottom::after {
+      border-bottom-width: 0
+    }
+
+    .van-nav-bar__right img {
+      width: 26px;
+    }
+    .content{
+      padding: 46px 0 56px 0;
+    }
+    .content.ifNewBank{
+      padding-top: 0;
+    }
+    .address-conent{
+      margin-bottom: 10px;
+    }
+    .address-conent .tip-img{
+      width: 28px;
+      height: 28px;
+      margin-right: 10px;
+    }
+    .contact-con{
+      display: flex;
+    }
+    .contact-con .name,
+    .contact-con .tel,
+    .contact-con .tag{
+      margin-right: 6px
+    }
+    .address-conent .addr{
+      margin-top: 6px;
+      line-height: 20px;
+    }
+    .shop-cont{
+      background: #ffffff;
+      display: flex;
+      padding: 10px 10px 0 10px;
+    }
+	.shop-cont .img-cont{
+	  width: 85px;
+	  height: 85px;
+	}
+	.shop-cont .img-cont img{
+		max-width: 100%;
+		max-height: 100%;
+	}
+	.shop-cont .desc-cont{
+	  width: calc(100% - 85px);
+	  padding-left: 10px;
+	}
+	.shop-cont .desc-cont .phone{
+		margin-top: 10px;
+		color: #888888;
+	}
+	.price{
+    background: #ffffff;
+		color: #888888;
+    padding: 8px 10px;
+	}
+  .price:nth-of-type(1){
+    padding-top: 20px;
+  }
+  .price:nth-of-type(2){
+    padding-bottom: 15px;
+  }
+	.price span{
+		float: right;
+		color: #333333;
+	}
+  .method{
+    margin-top: 10px;
+    background: #ffffff url(./images/right1.png) no-repeat calc(100% - 10px);
+    background-size: auto 15px;
+    padding: 10px;
+  }
+  .method span{
+    float: right;
+    padding-right: 18px;
+  }
+	.bottom{
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background: #FFFFFF;
+		display: flex;
+		height: 56px;
+		padding: 8px;
+	}
+	.bottom .total{
+		width: calc(100% - 100px);
+		text-align: right;
+		padding-right: 10px;
+	}
+	.bottom .total span{
+		color: #F66002;
+	}
+	.change-btn{
+      color: #fff;
+      background: linear-gradient(180deg,#00dcc0, #00c4ac 80%);
+      border-radius: 20px;
+      width: 100px;
+	  height: 40px;
+	  line-height: 40px;
+	  text-align: center;
+	}
+  .pay-title{
+    line-height: 46px;
+    text-align: center;
+    font-weight: bold;
+  }
+  .pay-title span{
+    float: left;
+    padding-left: 10px;
+  }
+
+
+  .loading-overlay{
+      background-color: rgba(0,0,0,.6);
+    }
+    .loading-overlay .wrapper{
+      text-align: center;
+      margin-top: 60%;
+    }
+	
+	/* 弹框 */
+	.van-popup--center{
+	  line-height: 30px;
+	  text-align: center;
+	  width: 80%;
+	  border-radius: 10px;
+	}
+	.popup-cont{
+	  padding: 30px 0 20px;
+	  border-bottom: 1px solid #e5e5e5;
+	}
+	.popup-cont .van-icon{
+	  font-size: 54px;
+	  color: #00c4ac;
+	}
+	.popup-cont .main-tip{
+	  font-size: 16px;
+	  font-weight: bold;
+	}
+	.van-popup--center .btn-cont{
+		display: flex;
+        justify-content: space-evenly;
+	}
+	.van-popup--center .btn{
+	   width: 50%;
+	  font-size: 16px;
+	  line-height: 42px;
+	}
+	.van-popup--center .btn:first-child{
+		border-right: 1px solid #E2E2E2;
+	}
+	
+	/* 回到首页悬浮按钮 */
+	.goIndexTip{
+		position: fixed;
+		right: 5px;
+		top: 76%;
+		border-radius: 50%;
+		height: 48px;
+		width: 48px;
+		display: grid;
+		text-align: center;
+		font-size: 12px;
+		padding: 6px;
+		background: #FFFFFF;
+		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+	}
+	.goIndexTip img{
+		width: 20px;
+		height: 20px;
+		margin: 0 auto;
+	}
+
+  </style>
+</head>
+
+<body>
+  <div id="confirmOrder" class="confirmOrder">
+    <van-nav-bar  v-if="!ifNewBank" title="确认订单" fixed left-arrow  @click-left="onClickLeft">
+      <!-- <template #right>
+        <img src="./images/close.png" />
+      </template> -->
+    </van-nav-bar>
+    <div class="content" :class="{'ifNewBank': ifNewBank}">
+      <div v-if="checkedAddress.id && goods_type == 3" class="address-conent">
+        <van-cell class="contact" center :border="false"  @click="collectAddress()">
+          <template #title>
+            <div class="contact-con">
+              <p class="name">{{checkedAddress.name}}</p>
+              <p class="tel">{{checkedAddress.mobile}}</p>
+              <div class="tag" v-if="checkedAddress.is_default">
+                <van-tag color="#e5f9f6" text-color="#00C4AC">默认</van-tag>
+              </div>
+            </div>
+            <p class="addr">{{checkedAddress.province}}
+              {{checkedAddress.city}}
+              {{checkedAddress.area}}
+              {{checkedAddress.street}}
+              {{checkedAddress.address}}
+            </p>
+          </template>
+          <template #icon>
+            <img src="images/receipt.png" class="tip-img" alt="">
+          </template>
+          <template #right-icon>
+            <van-icon name="arrow" color="#CCCCCC" size="20" style="line-height: inherit;" />
+          </template>
+        </van-cell>
+      </div>
+      <div v-else-if="!checkedAddress.id && goods_type == 3" class="address-conent">
+        <van-contact-card type="add" add-text="添加收货地址" @click="collectAddress()" />
+      </div>
+      <div class="shop-cont">
+        <div class="img-cont">
+          <img :src="detail.thumb" />
+        </div>
+        <div class="desc-cont">
+          <p>{{detail.goods_name}}</p>
+          <p v-if="detail.goods_type == 2" class="phone">手机号：{{phone}}</p>
+        </div>
+      </div>
+      <p class="price" v-if="detail.if_sheer == 0">订单总价(含运费) <span>¥{{detail.retail_price}}</span></p>
+      <p class="price">现金券 <span>{{detail.jf}}</span></p>
+
+      <div class="bottom">
+        <p class="total">合计<br />
+        <span>{{detail.jf}}元现金券</span><span v-if="detail.if_sheer == 0">+{{detail.retail_price}}元</span></p>
+       
+        <p class="change-btn" @click="confirmOrder()">确认兑换</p>
+      </div>
+
+
+      
+      
+    </div>
+
+
+    <!-- 加载中，编辑地址时用到 -->
+    <van-overlay :show="loadingShow" class="loading-overlay">
+      <div class="wrapper" @click.stop>
+        <van-loading type="spinner" vertical>加载中……</van-loading>
+      </div>
+    </van-overlay>
+	
+	<van-popup v-model="show" :close-on-click-overlay="closeOverlay">
+	  <div class="popup-cont">
+	    <van-icon name="checked"></van-icon>
+	    <p class="main-tip">兑换成功</p>
+	  </div>
+	  <div class="btn-cont">
+		  <p class="btn" @click="goIndex()">返回首页</p>
+		  <p class="btn" @click="successClose()">我知道了</p>
+	  </div>
+	  
+	  
+	</van-popup>
+
+	
+	<div class="goIndexTip" @click="goIndexTip()">
+		<img src="images/index.png" />
+		首页
+	</div>
+  </div>
+
+  <script>
+    // 在 #app 标签下渲染一个按钮组件
+    new Vue({
+      el: '#confirmOrder',
+      data: {
+        JumpUrl: {
+          detailUrl: baseUrl('/api/nhunion/goods_detail'),  // 积分商城--商品详情
+          orderUrl: baseUrl('/api/nhunion/submit_order'),  // 积分商城--积分兑换
+          addrListApi: baseUrl('/api/nhunion/address_lists'), // 积分商城--收货地址列表
+          addrDetailApi: baseUrl('/api/nhunion/address_detail'), // 积分商城--获取单个地址详细信息
+        },
+        token1: localStorage.getItem("token1"),
+        // token1: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTYwNDc4MDQsImp0aSI6ImVhNzlkYzQ0MTMzNDAxM2Q2ZGQ0NGJmYzJhNDQ0ZTZmIiwiaXNzIjoiMTI3LjAuMC4xIiwibmJmIjoxNjE2MDQ3ODA0LCJleHAiOjE2MjkxODc4MDQsImRhdGEiOnsibmhfaWQiOjF9fQ.bmvCG3lfbF5StbEa0yCiiwmqwtxzZYJfJUm0N1abX3Y',
+        ifNewBank: true,
+
+        goods_id: '',
+        phone: '',
+        goods_type: '',
+		    detail: '',
+        checkedAddress:{
+          // id: 1,
+          // is_default: 1
+        },
+        firstAddress: {},		
+        ifDefault: false,		
+        loadingShow: true,
+        closeOverlay:false,
+        show: false,
+      },
+      mounted() {
+        if(this.ifNewBank){
+          ready(function(e){
+           // 判断APP是否已登录
+            AlipayJSBridge.call('abcGetInfo', {
+              name:'mbLoginStatus'
+            }, function(result){
+              if(result.mbLoginStatus != '1'){
+                // alert('未登录'); 
+                AlipayJSBridge.call('startApp',{ // 调起掌银登录
+                  appId:'31009112',// 固定值
+                  param:{
+                    showProgress:'NO', 
+                    backBehavior:'back', 
+                    //jumpFrom实现登录后跳转，可选  
+                    //business_login 固定传0  
+                    //business_kind 1 离线包 2 联机H5 
+                    //url business_kind为1时是appid business_kind为2是H5链接  
+                    jumpFrom:{
+                      business_kind:'2',
+                      business_login:'0',
+                      url:'https://szxc.ha.abchina.com/yxhl/confirm-order.html'
+                    } 
+                  },  
+                },function(result){ 
+                    // 已调起登录页面 
+                });
+              }
+            })
+          })
+        }
+
+        document.addEventListener('optionMenu', function(e) {
+          if(e.data.index == 0) {
+            // 用户点击了第一个按钮。setOptionMenu 方法中，设置了第一个按钮为“关闭”
+            AlipayJSBridge.call('abcExitWebAndBackToHome');
+          }
+        })
+        
+        this.getDetail()
+        if(!getQueryString('address_id')){
+          this.getAddressList()
+        }else{
+          this.addressDetail(getQueryString('address_id'))
+        }
+        
+      },
+      methods: {
+        onClickLeft() {
+          if(this.goods_type == 3){
+            window.location.href = "shop-detail.html?id=" + this.goods_id + '&goods_type=' + this.goods_type;
+          }else{
+            window.history.go(-1);
+          }
+        },
+        goIndexTip(){
+          window.location.href = 'activity.html'
+        },
+        // 获取商品详情
+        getDetail(){
+          let that = this;
+          axios({
+            method: 'post',
+            url: that.JumpUrl.detailUrl,
+            data: {
+              token: that.token1,
+              goods_id: that.goods_id,
+            }
+          }).then(function(res){
+            that.loadingShow = false
+            if(res.data.errno == 0){
+              that.detail = res.data.data
+            }else if(res.data.errno == 11){
+              that.$toast(res.data.errmsg)
+              setTimeout(function(){
+                window.location.href = 'activity.html'
+              }, 1000)
+              
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          })
+        },
+        collectAddress(){
+          let href = window.location.href;
+          if (href.indexOf("phone") > -1){
+            window.location.href = "address-list.html?goods_id=" + this.goods_id + "&phone=" + this.phone + '&goods_type=' + this.goods_type;
+          }else{
+            window.location.href = "address-list.html?goods_id=" + this.goods_id + '&goods_type=' + this.goods_type;;
+          }
+        },
+        addressDetail(address_id){
+          let that = this
+          axios({
+            method: 'post',
+            url: that.JumpUrl.addrDetailApi,
+            data: {
+              id: address_id,
+              token: that.token1
+            }
+          }).then(function (res) {
+            if (res.data.errno == 0) {
+              that.checkedAddress = res.data.data
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          }).catch(function (error) { //请求失败
+            console.log('error', error);
+          })
+        },
+        getAddressList() {
+          let that = this;
+          axios({
+            method: 'post',
+            url: that.JumpUrl.addrListApi,
+            data: {
+              token: that.token1,
+              page: 1, 
+              size: 100, 
+            }
+          }).then(function(res){
+            // console.log(res)
+            if(res.data.errno == 0){
+              let addArray = res.data.data
+              if(addArray.length > 0){
+                that.firstAddress = addArray[0]
+                res.data.data.forEach(ele => {
+                  if(ele.is_default == 1){
+                    that.checkedAddress = ele
+                    that.ifDefault = true
+                  }
+                });
+
+                if(!that.ifDefault){
+                  that.checkedAddress = that.firstAddress
+                }
+              }
+              
+              
+            }else if(res.data.errno == 11){
+              that.$toast(res.data.errmsg)
+              setTimeout(function(){
+                window.location.href = 'activity.html'
+              }, 1000)
+              
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          })
+
+
+        },
+        // 确认兑换
+        confirmOrder(){
+          let that = this;
+          axios({
+              method: 'post',
+              url: that.JumpUrl.orderUrl,
+              data: {
+                token: that.token1,
+                goods_id: that.goods_id,
+                address_id: that.checkedAddress.id,
+                mobile: that.phone
+              }
+            }).then(function(res){
+              if(res.data.errno == 0){
+				that.show = true
+              }else if(res.data.errno == 100){
+                window.location.href = 'pay-order.html?order_id=' + res.data.order_id + '&order_no=' + res.data.order_no
+              }else if(res.data.errno == 11){
+                that.$toast(res.data.errmsg)
+                setTimeout(function(){
+                  window.location.href = 'activity.html'
+                }, 1000)
+                
+              }else{
+                that.$toast(res.data.errmsg)
+              }
+            })
+        },
+		goIndex(){
+			this.show = false
+			window.location.href = 'activity.html'
+		},
+		successClose() {
+		  this.show = false
+          window.location.href = 'change-list.html'
+		},
+
+      },
+      created() {
+        if (window.navigator.userAgent.indexOf('Bankabc/Portal') > -1){
+          this.ifNewBank = true
+        }else{
+          this.ifNewBank = false
+        }
+        this.goods_id = getQueryString('goods_id');
+        this.phone = getQueryString('phone')
+        this.goods_type = getQueryString('goods_type')
+      }
+    });
+  </script>
+</body>
+
+</html>

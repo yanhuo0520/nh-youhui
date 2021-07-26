@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>豫享壕礼</title>
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+  <!-- 引入样式文件 -->
+  <link rel="stylesheet" href="index.css" />
+  <!-- 引入 Vue 和 Vant 的 JS 文件 -->
+  <script src="axios.min.js"></script>
+  <script src="vue.min.js"></script>
+  <script src="vant.min.js"></script>
+  <script src="alipayjsapi.min.js"></script>
+  <script src="DataCollector_mobileBank.js"></script>
+
+  <!-- 公共文件 -->
+  <script src="mainPublic.js"></script>
+  <link rel="stylesheet" href="public.css" />
+  <!-- 自定义样式 -->
+  <style>
+    html,
+    body {
+      height: 100%;
+      background: #f4f4f4;
+    }
+
+    .activity {
+      font-size: 14px;
+      height: 100%;
+    }
+
+    /* 标题 */
+    .van-nav-bar--fixed{
+      z-index: 999;
+    }
+    .van-nav-bar__content {
+      background: #00c4ac;
+    }
+
+    .van-nav-bar .van-icon {
+      color: #ffffff;
+    }
+
+    .van-nav-bar__title {
+      color: #ffffff;
+    }
+
+    .van-hairline--bottom::after {
+      border-bottom-width: 0
+    }
+    .van-nav-bar__right img{
+      width: 26px;
+    }
+
+    /* logo */
+    .top-nav {
+      padding: 70px 10px 0;
+      /* height: 200px; */
+      position: relative;
+      background: #00c4ac;
+    }
+    .top-nav.ifNewBank{
+      padding-top: 25px;
+    }
+
+    .top-nav .logo {
+      display: flex;
+      padding: 0 10px;
+    }
+
+    .top-nav .logo-img {
+      width: 45px;
+      height: 45px;
+      margin-right: 10px;
+    }
+
+    .top-nav .coupon-img {
+      width: 25px;
+      vertical-align: bottom;
+    }
+
+    .top-nav .desc {
+      font-weight: bold;
+      font-size: 16px;
+      color: #ffffff;
+    }
+
+    .top-nav span {
+      color: #FFD200;
+    }
+
+    .top-nav p {
+      font-weight: normal;
+      margin-top: 5px;
+      font-size: 14px;
+      padding-right: 72px;
+    }
+
+    .top-nav .detail {
+      position: absolute;
+      right: 0;
+      top: 65px;
+      color: #00C4AC;
+      padding: 4px 20px 4px 10px;
+      border-top-left-radius: 30px;
+      border-bottom-left-radius: 30px;
+      background: #ffffff;
+    }
+    .top-nav .detail.shop{
+      top: 100px;
+    }
+
+    .top-nav .detail.ifNewBank{
+      top: 18px !important;
+    }
+    .top-nav .detail.shop.ifNewBank{
+      top: 52px !important;
+    }
+    /* 三角 */
+    .top-nav .detail::after {
+      position: absolute;
+      content: '';
+      top: 9px;
+      right: 4px;
+      width: 0;
+      height: 0;
+      border-width: 5px;
+      border-style: solid;
+      opacity: 0.6;
+      border-color: transparent transparent transparent #009174;
+    }
+
+    .content {
+      padding: 0 10px;
+      position: absolute;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+
+    .banner {
+      margin-top: -50px;
+      display: flex;
+      display: none;
+    }
+
+    .banner .ban-img {
+      width: 50%;
+    }
+
+    .banner img {
+      padding: 0 5px;
+      max-width: 100%;
+    }
+
+    
+    /* 轮播图 */
+    .van-swipe{
+      margin-top: 30px;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      background: linear-gradient(180deg,#ffffff, #eef8f7);
+      padding: 10px 10px 40px;
+    }
+    .top-nav::after{
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -10px;
+      background: #ffffff;
+      height: 40px;
+    }
+    .van-swipe .swipe-title{
+      font-size: 17px;
+      font-weight: bold;
+    }
+    .van-swipe .swipe-title span{
+      font-size: 14px;
+      font-weight: normal;
+      color: #999999;
+    }
+    .swipe-title .down{
+      margin-left: 6px;
+      width: 12px;
+    }
+    .swiper .descTip{
+      padding-right: 20px;
+      font-size: 13px;
+      color: #999999;
+    }
+    .van-swipe img{
+      margin-top: 15px;
+      max-width: calc(100% - 20px);
+      /* max-height: 300px; */
+    }
+    .van-swipe__indicators{
+      bottom: 6px;
+      z-index: 999;
+    }
+    .van-swipe__indicator{
+      background-color: #dddddd;
+    }
+    .van-swipe__indicator--active{
+      width: 16px;
+      background: transparent url(./images/Stroke.png) no-repeat;
+      background-size: 100% 5px;
+    }
+
+    .main-title {
+      margin-top: 10px;
+      font-size: 17px;
+      color: #333333;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      letter-spacing: -0.5px;
+    }
+
+    .main-title .left span {
+      font-weight: normal;
+      font-size: 12px;
+    }
+
+    .main-title .right {
+      font-weight: normal;
+      font-size: 14px;
+      position: relative;
+      padding-right: 16px;
+      margin-top: 3px;
+    }
+
+    .main-title .right::after {
+      position: absolute;
+      content: '';
+      top: 5px;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent transparent rgba(136, 136, 136, 0.5);
+    }
+
+    .min-cont {
+      margin-top: 15px;
+      padding: 5px 0 0;
+    }
+    .min-cont.guang{
+      background: url(./images/guang.png) no-repeat top left;
+      background-size: auto 100%;
+    }
+    .min-cont.chi{
+      background: url(./images/chi.png) no-repeat top left;
+      background-size: auto 100%;
+    }
+    .min-cont.hui{
+      background: url(./images/hui.png) no-repeat top left;
+      background-size: auto 100%;
+    }
+    .min-cont.zhi{
+      background: url(./images/zhi.png) no-repeat top left;
+      background-size: auto 100%;
+      margin-bottom: 20px;
+    }
+    .min-cont.leng,
+    .min-cont.home{
+      background: url(./images/leng.png) no-repeat top left;
+      background-size: auto 100%;
+    }
+    .min-cont.chou{
+      background: url(./images/chou.png) no-repeat top left;
+      background-size: auto 100%;
+    }
+
+    .m-title {
+      display: flex;
+      padding-left: 54px;
+      justify-content: space-between;
+    }
+
+    .m-title .main {
+      font-size: 16px;
+      color: #333333;
+      font-weight: bolder;
+    }
+
+    .m-title .main img{
+      width: 16px;
+      padding: 4px;
+      border-radius: 50%;
+      background: linear-gradient(180deg,#00dcc0, #00c4ac 80%);
+      vertical-align: middle;
+      margin-bottom: 4px;
+    }
+
+    .min-cont.guang .main{
+      color: #00C5AD;
+    }
+    .min-cont.chi .main{
+      color: #F8A13E;
+    }
+    .min-cont.chi .main img{
+      background: linear-gradient(180deg,#fad961 0%, #f76b1c);
+    }
+    .min-cont.hui .main{
+      color: #EA5F44;
+    }
+    .min-cont.hui .main img{
+      background: linear-gradient(180deg,#ff5c29 29%, #f10000 100%);
+    }
+    .min-cont.zhi .main{
+      color: #5191E6;
+    }
+    .min-cont.zhi .main img{
+      background: linear-gradient(180deg,#569cf6, #006bf6 100%);
+    }
+    .min-cont.leng .m-title{
+      padding-left: 40px;
+      margin-top: 5px;
+    }
+    .min-cont.leng .main img{
+      background: linear-gradient(0deg,#9e4bd2 0%, #c86dd7 96%);
+    }
+    .min-cont.leng .main{
+      font-size: 20px;
+      margin-top: 8px;
+    }
+    .min-cont.leng .m-title .tip-ani{
+      width: 24px !important;
+      top: 5px !important;
+    }
+    .min-cont.chou .m-title{
+      padding-left: 50px;
+      margin-top: 5px;
+    }
+    .min-cont.chou .main img{
+      background: linear-gradient(180deg,#ffc804, #f0bc00);
+    }
+    .min-cont.home .m-title{
+      padding-left: 0;
+      margin-top: 5px;
+    }
+    .min-cont.home .m-title .text-img{
+      width: 106px;
+      margin-top: 6px;
+      margin-left: 10px;
+    }
+    .min-cont.home .m-title .right-tip{
+      width: 16px;
+      padding: 4px;
+      border-radius: 50%;
+      background: linear-gradient(180deg,#569CF6, #006BF6 80%);
+      vertical-align: middle;
+      margin-bottom: 4px;
+    }
+    .m-title{
+      position: relative;
+    }
+    .m-title .desc {
+      font-size: 13px;
+    }
+
+    .m-title .right {
+      color: #999999;
+      font-size: 13px;
+      margin-top: 22px;
+      min-width: 94px;
+      text-align: right;
+    }
+
+    .m-title .right span,
+    .m-content .top p span.num {
+      color: #FC9D00;
+      padding: 0 2px;
+    }
+
+    .m-title img {
+      width: 20px;
+      margin-left: 5px;
+      vertical-align: bottom;
+    }
+
+    .min-cont .m-content {
+      margin-top: 5px;
+      padding: 5px 10px 0 10px;
+    }
+
+    .min-cont .m-content .top{
+      margin-top: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .min-cont .m-content .top p{
+      font-size: 14px;
+      color: #000000;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    }
+
+    .min-cont .m-content .top.ifMix p{
+      font-size: 12px;
+    }
+
+    .m-content .van-button {
+      background: linear-gradient(180deg, #00dcc0, #00c4ac 80%);
+      border: none;
+      padding: 0 5px;
+      height: 26px;
+      width: 60px;
+    }
+
+    .m-content .bottom {
+      margin-top: 10px;
+      padding-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      background: url(images/line_bg.png) no-repeat;
+      background-position: 50% 12px;
+      background-size: 75% 4px;
+      }
+
+    .m-content .bottom .item{
+      width: 100%;
+    }
+
+    .m-content .bottom .item.activeRight,
+    .m-content .bottom .item.activeBefore{
+      position: relative;
+    }
+    .m-content .bottom .item.activeRight::after{
+      content: '';
+      position: absolute;
+      left: calc(50% + 14px);
+      bottom: 42px;
+      width: 24%;
+      height: 4px;
+      background: linear-gradient(270deg,#00dcc0 0%, #00c4ac 100%);
+    }
+    .m-content .bottom .item.activeBefore::before{
+      content: '';
+      position: absolute;
+      right: calc(50% + 14px);
+      bottom: 42px;
+      width: calc(100% - 28px);
+      height: 4px;
+      background: linear-gradient(270deg,#00dcc0 0%, #00c4ac 100%);
+    }
+
+    .m-content .bottom .item.active div{
+      background: linear-gradient(270deg,#00dcc0 0%, #00c4ac 100%);
+    }
+    .m-content .bottom .item.active p{
+      color: #ffffff;
+      background: linear-gradient(270deg,#00dcc0 0%, #00c4ac 100%);
+    }
+    .m-content .bottom .item.active p::after{
+      border-color: transparent transparent #1dccab transparent;
+    }
+    .m-content .bottom .item div{
+      width: 28px;
+      height: 28px;
+      align-items: center;
+      display: flex;
+      margin: 0 auto;
+      background: #e2edec;
+      border-radius: 50%;
+    }
+    .m-content .bottom .item p{
+      margin-top: 10px;
+      font-size: 13px;
+      color: #888888;
+      background: #e2edec;
+      padding: 1px 8px;
+      border-radius: 10px;
+      position: relative;
+      width: 56px;
+      margin-left: calc(50% - 28px);
+    }
+    .m-content .bottom .item p::after{
+      position: absolute;
+      content: '';
+      top: -12px;
+      right: calc(50% - 8px);
+      width: 0;
+      height: 0;
+      border-width: 8px;
+      border-style: solid;
+      border-color: transparent transparent #dcebe8 transparent;
+    }
+    .m-content .bottom .item img{
+      width: 20px;
+      margin: 0 auto;
+      align-items: center;
+    }
+
+    .bg {
+      margin: 0 -10px;
+      padding: 0 10px 0 10px;
+    }
+    .cont-cont{
+      background: #ffffff;
+      margin: 0 -10px 0 -10px;
+      padding: 0 10px 10px 10px;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+    .tip-ani-img{
+      position: absolute;
+      left: 0px;
+      top: 0;
+      width: 36px !important;
+      height: auto;
+      animation: myfirst 1.5s infinite;
+    }
+    .tip-ani{
+      position: absolute;
+      left: 0px;
+      top: 2px;
+      width: 38px !important;
+      height: auto;
+    }
+    @keyframes myfirst {
+			0% {
+			    transform: translate(0px, 0px);
+			  }
+			50% {
+			    transform: translate(0px, 6px);
+			  }
+			100% {
+			    transform: translate(0px, 0px);
+			  }
+		}
+
+
+    .loading-overlay{
+      background-color: rgba(0,0,0,.6);
+    }
+    .loading-overlay .wrapper{
+      text-align: center;
+      margin-top: 60%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="activity" class="activity">
+    <van-nav-bar  v-if="!ifNewBank" title="豫享壕礼" fixed left-arrow @click-left="onClickLeft">
+      <!-- <template #right>
+        <img src="./images/close.png" />
+      </template> -->
+    </van-nav-bar>
+    <div class="top-nav" :class="{'ifNewBank': ifNewBank}">
+      <div class="logo">
+        <img src="./images/logo.png" class="logo-img" />
+        <div class="desc">
+          现金券 
+          <!-- <img src="./images/coupon2.png" class="coupon-img" v-if="totalNum <= 0" /> <span v-if="totalNum > 0"> {{totalNum}} </span> -->
+          <span> {{totalNum}} </span>
+          <span> 元</span>
+          
+          <p>动动手指参与活动,获取现金券</p>
+        </div>
+      </div>
+      <p class="detail" :class="{'ifNewBank': ifNewBank}" @click.prevent="goDetail()">现金券明细</p>
+      <p class="detail shop" :class="{'ifNewBank': ifNewBank}" @click.prevent="goExchange()">现金券兑换</p>
+
+
+      
+      <van-swipe :autoplay="10000" class="swiper">
+        <van-swipe-item v-for="(image, index) in images" :key="index" >
+          <p class="swipe-title">{{image.name}} <span>{{image.content}}</span>
+            <!-- <img src="./images/down.png" class="down" v-if="image.desc" />  -->
+          </p>
+          <!-- <p class="descTip" v-if="image.content">{{image.desc}}</p> -->
+          <img :src="image.img" @click="goUrl(image.url)"/>
+        </van-swipe-item>
+      </van-swipe>
+    </div>
+    <div class="content">
+      <!-- <div class="banner">
+        <div class="ban-img">
+          <img src="./images/draw1.png" @click.prevent="goDraw()" />
+        </div>
+        <div class="ban-img">
+          <img src="./images/seckill.png" @click.prevent="goSeckill()" />
+        </div>
+      </div> -->
+      <div class="main-title">
+        <div class="left">缴费领券 <span>每季度缴费均可获得现金券</span></div>
+        <div class="right" @click.prevent="ruleQuanDetail()">活动规则</div>
+      </div>
+      <!-- 逛校园 -->
+      <div class="min-cont guang">
+        <div class="m-title ani-title" @click.prevent="guangXiao()">
+          <img src="./images/guang_text.png" class="tip-ani" />
+          <div class="left">
+            <p class="main">校园<span><img src="./images/right.png" /> </span></p>
+            <p class="desc">您的母校在这里</p>
+          </div>
+          <div class="right">
+            累计获得<span v-if="dataArrayOb.xyscore > 0">{{dataArrayOb.xyscore}}</span><span v-else>0</span>元
+          </div>
+        </div>
+        <div class="m-content">
+          <div class="top" :class='{"ifMix": ifSmall}'>
+            <p v-if="activeCont1.quarter == 0">您本季度还没缴费，快去缴费领现金券吧</p>
+            <p v-if="activeCont1.quarter == 1">本季度已获{{activeCont1.nowSeason}}元，还有{{activeCont1.nextSeason}}元等您下季度来拿</p>
+            <p v-if="activeCont1.quarter == 2">恭喜您已完成{{activeCont1.num}}个季度缴费</p>
+            <van-button round type="primary" @click.prevent="goPayX()">去缴费</van-button>
+          </div>
+          <div class="bottom">
+            <div class="item" :class='{"active": activeCont1.active1, "activeRight": activeCont1.activeRight1}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>一季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont1.active2, "activeRight": activeCont1.activeRight2, "activeBefore": activeCont1.activeBefore2}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>二季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont1.active3, "activeRight": activeCont1.activeRight3, "activeBefore": activeCont1.activeBefore3}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>三季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont1.active4, "activeBefore": activeCont1.activeBefore4}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>四季度</p>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+     
+      <!-- 吃餐厅 -->
+      <div class="min-cont chi">
+        <div class="m-title" @click.prevent="guangCan()">
+          <img src="./images/chi_text.png" class="tip-ani" />
+          <div class="left">
+            <p class="main">食堂<span><img src="./images/right.png" /> </span></p>
+            <p class="desc">来充值，才有美食</p>
+          </div>
+          <div class="right">
+            累计获得<span v-if="dataArrayOb.stscore > 0">{{dataArrayOb.stscore}}</span><span v-else>0</span>元
+          </div>
+        </div>
+        <div class="m-content">
+          <div class="top" :class='{"ifMix": ifSmall}'>
+            <p v-if="activeCont2.quarter == 0">您本季度还没缴费，快去缴费领现金券吧</p>
+            <p v-if="activeCont2.quarter == 1">本季度已获{{activeCont2.nowSeason}}元，还有{{activeCont2.nextSeason}}元等您下季度来拿</p>
+            <p v-if="activeCont2.quarter == 2">恭喜您已完成{{activeCont2.num}}个季度缴费</p>
+            <van-button round type="primary" @click.prevent="goPayX()">去缴费</van-button>
+          </div>
+          <div class="bottom">
+            <div class="item" :class='{"active": activeCont2.active1, "activeRight": activeCont2.activeRight1}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>一季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont2.active2, "activeRight": activeCont2.activeRight2, "activeBefore": activeCont2.activeBefore2}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>二季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont2.active3, "activeRight": activeCont2.activeRight3, "activeBefore": activeCont2.activeBefore3}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>三季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont2.active4, "activeBefore": activeCont2.activeBefore4}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>四季度</p>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      <!-- 惠民生 -->
+      <div class="min-cont hui">
+        <div class="m-title" @click.prevent="guangMin()">
+          <img src="./images/hui_text.png" class="tip-ani" />
+          <div class="left">
+            <p class="main">民生<span><img src="./images/right.png" /> </span></p>
+            <p class="desc">水、电、燃、社保通通都有</p>
+          </div>
+          <div class="right">
+            累计获得<span v-if="dataArrayOb.zwscore > 0">{{dataArrayOb.zwscore}}</span> <span v-else>0</span>元
+          </div>
+        </div>
+        <div class="m-content">
+          <div class="top" :class='{"ifMix": ifSmall}'>
+            <p v-if="activeCont3.quarter == 0">您本季度还没缴费，快去缴费领现金券吧</p>
+            <p v-if="activeCont3.quarter == 1">本季度已获{{activeCont3.nowSeason}}元，还有{{activeCont3.nextSeason}}元等您下季度来拿</p>
+            <p v-if="activeCont3.quarter == 2">恭喜您已完成{{activeCont3.num}}个季度缴费</p>
+            <van-button round type="primary" @click.prevent="goPayX()">去缴费</van-button>
+          </div>
+          <div class="bottom">
+            <div class="item" :class='{"active": activeCont3.active1, "activeRight": activeCont3.activeRight1}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>一季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont3.active2, "activeRight": activeCont3.activeRight2, "activeBefore": activeCont3.activeBefore2}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>二季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont3.active3, "activeRight": activeCont3.activeRight3, "activeBefore": activeCont3.activeBefore3}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>三季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont3.active4, "activeBefore": activeCont3.activeBefore4}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>四季度</p>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      <!-- 智党建 -->
+      <div class="min-cont zhi">
+        <div class="m-title" @click.prevent="guangDang()">
+          <img src="./images/zhi_text.png" class="tip-ani" />
+          <div class="left">
+            <p class="main">党建<span><img src="./images/right.png" /> </span></p>
+            <p class="desc">在党旗下庄严宣誓</p>
+          </div>
+          <div class="right">
+            累计获得<span v-if="dataArrayOb.djscore > 0">{{dataArrayOb.djscore}}</span> <span v-else>0</span>元
+          </div>
+        </div>
+        <div class="m-content">
+          <div class="top" :class='{"ifMix": ifSmall}'>
+            <p v-if="activeCont4.quarter == 0">您本季度还没缴费，快去缴费领现金券吧</p>
+            <p v-if="activeCont4.quarter == 1">本季度已获{{activeCont4.nowSeason}}元，还有{{activeCont4.nextSeason}}元等您下季度来拿</p>
+            <p v-if="activeCont4.quarter == 2">恭喜您已完成{{activeCont4.num}}个季度缴费</p>
+            <van-button round type="primary" @click.prevent="goPayX()">去缴费</van-button>
+          </div>
+          <div class="bottom">
+            <div class="item" :class='{"active": activeCont4.active1, "activeRight": activeCont4.activeRight1}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>一季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont4.active2, "activeRight": activeCont4.activeRight2, "activeBefore": activeCont4.activeBefore2}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>二季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont4.active3, "activeRight": activeCont4.activeRight3, "activeBefore": activeCont4.activeBefore3}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>三季度</p>
+            </div>
+            <div class="item" :class='{"active": activeCont4.active4, "activeBefore": activeCont4.activeBefore4}'>
+              <div><img src="images/coupon1.png" /></div>
+              <p>四季度</p>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+      <div class="bg">
+        <div class="main-title">
+          <div class="left">优惠活动 <span>每季度参与活动可获得现金券</span></div>
+          <div class="right" @click.prevent="ruleHuiDetail()">活动规则</div>
+        </div>
+        <div class="cont-cont">
+          <!-- 老家来信 / 扶贫商城  -->
+          <div class="min-cont home">
+            <div class="m-title" @click.prevent="goHome()">
+              <div class="left">
+                <img src="./images/home_text1.png" class="text-img" /><img src="./images/right.png" class="right-tip" />
+              </div>
+              <div class="right">
+                累计获得<span v-if="dataArrayOb.msscore > 0">{{dataArrayOb.fpscore}}</span><span v-else>0</span>元
+              </div>
+            </div>
+            <div class="m-content">
+              <div class="top" :class='{"ifMix": ifSmall}'>
+				   <!-- quarter   0--当前季度未缴费  1--当前季度已缴费切不是第四季度   2--当前季度已缴费切是第四季度 -->
+                <p v-if="activeCont6.quarter == 0">您本季度还没缴费，快去缴费领现金券吧</p>
+                <p v-if="activeCont6.quarter == 1">本季度已获{{activeCont6.nowSeason}}元，还有{{activeCont6.nextSeason}}元等您下季度来拿</p>
+                <p v-if="activeCont6.quarter == 2">恭喜您已完成{{activeCont6.num}}个季度缴费</p>
+                <van-button round type="primary" @click.prevent="goHome()">去助农</van-button>
+              </div>
+              <div class="bottom">
+                <div class="item" :class='{"active": activeCont6.active1, "activeRight": activeCont6.activeRight1}'>
+                  <div><img src="images/coupon1.png" /></div>
+                  <p>一季度</p>
+                </div>
+                <div class="item" :class='{"active": activeCont6.active2, "activeRight": activeCont6.activeRight2, "activeBefore": activeCont6.activeBefore2}'>
+                  <div><img src="images/coupon1.png" /></div>
+                  <p>二季度</p>
+                </div>
+                <div class="item" :class='{"active": activeCont6.active3, "activeRight": activeCont6.activeRight3, "activeBefore": activeCont6.activeBefore3}'>
+                  <div><img src="images/coupon1.png" /></div>
+                  <p>三季度</p>
+                </div>
+                <div class="item" :class='{"active": activeCont6.active4, "activeBefore": activeCont6.activeBefore4}'>
+                  <div><img src="images/coupon1.png" /></div>
+                  <p>四季度</p>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+          <!-- 秒杀 -->
+          <div class="min-cont leng">
+            <div class="m-title" @click.prevent="goSeckill()">
+              <img src="./images/leng_text.png" class="tip-ani" />
+              <div class="left">
+                <p class="main">元秒杀<span><img src="./images/right.png" /> </span></p>
+              </div>
+              <div class="right">
+                累计获得<span v-if="dataArrayOb.msscore > 0">{{dataArrayOb.msscore}}</span><span v-else>0</span>元
+              </div>
+            </div>
+            <div class="m-content">
+              <div class="top" :class='{"ifMix": ifSmall}'>
+				   <!-- quarter   0--当前季度未缴费  1--当前季度已缴费切不是第四季度   2--当前季度已缴费切是第四季度 -->
+                <p v-if="activeCont5.quarter == 0">您本季度还没缴费，快去缴费领现金券吧</p>
+                <p v-if="activeCont5.quarter == 1">本季度已获{{activeCont5.nowSeason}}元，还有{{activeCont5.nextSeason}}元等您下季度来拿</p>
+                <p v-if="activeCont5.quarter == 2">恭喜您已完成{{activeCont5.num}}个季度缴费</p>
+                <van-button round type="primary" @click.prevent="goSeckill()">去秒杀</van-button>
+              </div>
+              <div class="bottom">
+                <div class="item" :class='{"active": activeCont5.active1, "activeRight": activeCont5.activeRight1}'>
+                  <div><img src="images/coupon1.png" /></div>
+                  <p>一季度</p>
+                </div>
+                <div class="item" :class='{"active": activeCont5.active2, "activeRight": activeCont5.activeRight2, "activeBefore": activeCont5.activeBefore2}'>
+                  <div><img src="images/coupon1.png" /></div>
+                  <p>二季度</p>
+                </div>
+                <div class="item" :class='{"active": activeCont5.active3, "activeRight": activeCont5.activeRight3, "activeBefore": activeCont5.activeBefore3}'>
+                  <div><img src="images/coupon1.png" /></div>
+                  <p>三季度</p>
+                </div>
+                <div class="item" :class='{"active": activeCont5.active4, "activeBefore": activeCont5.activeBefore4}'>
+                  <div><img src="images/coupon1.png" /></div>
+                  <p>四季度</p>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+	// dataCollection_HTML("豫享壕礼"); // 埋点标题修改
+		dataCollection_HTML("河南_校园_首页");
+    // 在 #app 标签下渲染一个按钮组件
+    new Vue({
+      el: '#activity',
+      data: {
+        JumpUrl: {
+          authIntegral: baseUrl('/api/index/abc_auth_integral'), // 农行优惠联盟用户授权登录
+          scoreUrl: baseUrl('/api/nhunion/user_score'),  // 用户分值信息（加上季度积分
+          bannerUrl: baseUrl('/api/nhunion/banner'),
+        },
+        fullWidth: document.documentElement.clientWidth,
+        ifSmall: false,
+        images: [],
+
+        // quarter   0--当前季度未缴费  1--当前季度已缴费切不是第四季度   2--当前季度已缴费切是第四季度
+        // num: 总缴费的季度数  nowSeason 当前季度获取多少   nextSeason 下个季度即将获取多少
+        activeCont1: {}, // 逛校园
+        activeCont2: {},  // 吃食堂
+        activeCont3: {}, // 惠民生
+        activeCont4: {}, // 智党建
+        activeCont5: {}, // 0元秒杀
+        activeCont6: {}, // 老家来信
+       
+        token1: '',
+        // token1: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTYwNDc4MDQsImp0aSI6ImVhNzlkYzQ0MTMzNDAxM2Q2ZGQ0NGJmYzJhNDQ0ZTZmIiwiaXNzIjoiMTI3LjAuMC4xIiwibmJmIjoxNjE2MDQ3ODA0LCJleHAiOjE2MjkxODc4MDQsImRhdGEiOnsibmhfaWQiOjF9fQ.bmvCG3lfbF5StbEa0yCiiwmqwtxzZYJfJUm0N1abX3Y',
+
+        ifreg: 0,
+        codeId: '',
+
+        totalNum: 0,
+        dataArrayOb: {},
+
+        ifNewBank: true,
+        userAgent: navigator.userAgent.toLowerCase(),
+      },
+      mounted() {
+        if(this.fullWidth < 370){
+          this.ifSmall = true
+        }
+        if(this.token1){
+          this.getBanner()
+          this.getData();
+        }
+        if(this.ifNewBank){
+          ready(function(e){
+            AlipayJSBridge.call('setOptionMenu', {
+                icon: 'iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABGdBTUEAALGPC/xhBQAAACBjSF JNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAUGVYSWZNTQAqAAAACAAC ARIAAwAAAAEAAQAAh2kABAAAAAEAAAAmAAAAAAADoAEAAwAAAAEAAQAAoAIABAAAAAEAAAAooA MABAAAAAEAAAAoAAAAAGg7SLIAAAIwaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8eDp4bXBt ZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA1LjQuMCI+Ci AgIDxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYt c3ludGF4LW5zIyI+CiAgICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiCiAgICAgIC AgICAgIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIgogICAgICAg ICAgICB4bWxuczpleGlmPSJodHRwOi8vbnMuYWRvYmUuY29tL2V4aWYvMS4wLyI+CiAgICAgIC AgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgICAgIDxleGlm OkNvbG9yU3BhY2U+MTwvZXhpZjpDb2xvclNwYWNlPgogICAgICAgICA8ZXhpZjpQaXhlbFhEaW 1lbnNpb24+NTA8L2V4aWY6UGl4ZWxYRGltZW5zaW9uPgogICAgICAgICA8ZXhpZjpQaXhlbFlE aW1lbnNpb24+NTA8L2V4aWY6UGl4ZWxZRGltZW5zaW9uPgogICAgICA8L3JkZjpEZXNjcmlwdG lvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KtrIrXQAABlpJREFUWAndmH9InVUYx3ev V6euzJizFFZsUX9YW3+4yyJkDbVhRblV2+jHgkH5YytWZBQV5R8tSAIV82dCWURsLWoRNBZKIV qUQq5iFcGsltdfa4FDbf7q8xzf8+7c977v9XU6gl547/Oc5zw/vuc5zznnPTewYpmekpKS1FAo lD03N5cVCARmeEZSUlJGampq/l5KiMDFGu/bt2/t7OxsMYC2827CzxVuvgB7uLm5ebdbnx/Zog GWlpYWAagS55t9BQgEzmRlZWVWVlbO+tF36vgGWF5enkvGqgCX73AySvs47ymyNcAbQS8EXYPs ct52MtgDjXkOHDhw1eTk5Bt0bMPvcDAYPNjU1PS2qegLIFl7FqNXcRIUY4JPQFp5jxQUFHTt2r VrRuSLfajbTmzyTLuEhIQ7GxsbP9OyuACZluRIJPImwB4WA4DJNLUlJSW9VFdXd1o7uRi6f//+ a6empvqdtsR4j4yreNIXcirotoAbGBj4nLYaIYaDTMEORve11lkKxZdX1qPkasrcApG5VgNcLw A3LRc4iSczgE9JgPnMIXvLFLgClJpjWh8SRQx64bdQvH+ahsvBk8Xd+JFE/E6cHtr3EecL03dM DVqr9RtrQUQwCl8KcCaIeHxMBq2tJMiIZllR9/6X4AR41CKxNuF8a0RtXjXHAgoODg5uZQB99f X1Z+JlwOzDfw4zEsLvCVMej4/KINNaKcpkb0K2Ei9DFlANmW5nm/iJvWyDl54pR+9R/P/AGd1H Gd1h9jl5dBO1zAaI8BqEm62O1gX2uRstvQxoBwE3Wm1XIuDoaOFVNc/gtH2MPlmWc/0s9EuZKR sgqb/H0D5i8DEsuk+RZT21GWSl3QukExzOuimNphinFwQ3w66SnWN4eHijDRDBdktnVI6vC/qx nFVDBQuBdAOXnp5e1NDQcC7W67wE8L26b3p6eqsNEGHY6jju52zlOOpD3xOkF7iqqqoxDcCNZm ZmnmDgZ6UPukUBrKiokJSmWQan3AzdZF4gAfcy+nbNwXdL5hYCJzGou1mwqFUOXacAjo+PZ0mnPKAemOf8/bqBxFIA6kPANzgdEQwjwkPXKIAgNQFGtKJfqkGir2tLg/vOb+YcseQbU54MBZBVeH6+rX5XGrxvlkFKDa8yDcjA2rGxsXWmzCefLHr4nFAAuezY04ow26cTW81lQUxZAVbH24JsBw5GY5ByUwBZzoPozFl69nQ77FybLuC6ExMTb8O5r33SzSm2OkkRBbClpWUK4ZAog95zl3c6cwMnNc f5/BW6nluQ04/ZZhUng2G9yKCnFUCr0SEUoPlcKS8TPt7jBU5vJXrhLDaTfIQUEjdVYmPbYQPk +DoqQlCvpG6KhPd6APcgfS28erW6biVeILG/zss38fWJNpOamvqpDTAtLU1uUuctw0e8HIickT 0hxNJxBWf1rXADib36Wtc6mlozpwCi01ldXf2XDVCmBuHHoswo7kb5Vm3opPTLYT+O/jE/+5wG iY3cnf/A/rDTp7SZuWfoW231vSNUZ0HJuArewIr+ESW5eHfhWN3oLIMoQjEn8eqMR/V5NdAP5u TkBNzOehJyNbF/xVb20pOFhYUbRC8KoDimPhog5cLzPM4Kr59nL90vCQmUlZV9BC2WKHzRFPPF 9IninWHz8vJ6SPVe5KlkcVs4HO7q6enx/QHh9OenPTQ0dBBwj4kuMdu5B72g7ewa1ILa2tohlH eiOA0N8fX7AaO7SfcvN+XLeS8xnhe/xOznqvGAGSPBbGi+t7e3Pzc3Vw7su3hTALqHTH5PJn/R Okul+AxYmXtdfAHuHFvd7WzyUbMVU4NmYOrxFdoq3TiQ77TK7Ozs1xa7OEyfwsuCoIya8KdqTs Ah3smiPObUjQtQlJnePTiSP5D0V46M8EWcvY9jfX47/bq2ZZ+ztpKnUVBfPvjoJ3OyKFyvogsC lEhciG7B8SFYufmpB8c/835I4yjOv/UCS7aT5fiizorR2cFA9T6nFoTUHDfIEcttDPEFUKwkEP 92yQkiBZ0uMuMZJfhvtAcAIH9iroRmQ+U/6/XI1dlq6J9kK3lObyWGPIb1DVBbks0rycaTtO8n eI6W+6AzAO7kfTc/P7/NbbN287FogKYTtojraUuhh3XG4LPg/4FGACMZlb/ZOuTgl7MV+f/r+R eLBP5pQAhzkgAAAABJRU5ErkJggg==', // 设置文字，文字和图标只能用一种
+                redDot: '-1', // -1 表示不显示，0 表示显示红点，1-99 表示在红点上显示的数字
+                override: true // 是否覆盖默认的optionMenu，统一传true
+              })
+            // 必须强制调用一次以刷新界面
+            AlipayJSBridge.call('showOptionMenu');
+
+            // 隐藏导航栏右侧图标
+            // AlipayJSBridge.call('hideOptionMenu');
+
+          });
+        }
+        
+        
+        // 自定义返回按钮事件
+        // document.addEventListener('back', function(e){
+        //   window.history.go(-1);
+        //   e.preventDefault() // 阻止默认行为
+        // }, false)
+
+        document.addEventListener('optionMenu', function(e) {
+          if(e.data.index == 0) {
+            // 用户点击了第一个按钮。setOptionMenu 方法中，设置了第一个按钮为“关闭”
+            AlipayJSBridge.call('abcExitWebAndBackToHome');
+          }
+        })
+      },
+      methods: {
+        onClickLeft() {
+          window.history.go(-1);
+        },
+        getBanner(){
+          let that = this;
+          axios({
+            method: 'post',
+            url: that.JumpUrl.bannerUrl,
+            data: {
+              token: that.token1
+            }
+          }).then(function(res){
+            // console.log(res.data.data)
+            if(res.data.errno == 0){
+              that.images = res.data.data
+            }else if(res.data.errno == 11){
+              that.$toast(res.data.errmsg)
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          })
+        },
+        // banner链接跳转
+        goUrl(url){
+          if(url){
+            window.location.href = url
+          }
+        },
+        getData(){
+          let that = this;
+          axios({
+            method: 'post',
+            url: that.JumpUrl.scoreUrl,
+            data: {
+              token: that.token1,
+            }
+          }).then(function(res){
+            if(res.data.errno == 0){
+              that.totalNum = res.data.left_jf;
+              if(res.data.data.length > 0){
+                let dataArray = res.data.data[0];
+                // console.log(dataArray)
+                that.dataArrayOb = dataArray;
+                that.activeCont1 = getChangeAr(dataArray.xy_arr);
+                that.activeCont2 = getChangeAr(dataArray.st_arr);
+                that.activeCont3 = getChangeAr(dataArray.zw_arr);
+                that.activeCont4 = getChangeAr(dataArray.dj_arr);
+                that.activeCont5 = getChangeAr(dataArray.ms_arr);
+                that.activeCont6 = getChangeAr(dataArray.fp_arr);
+              }
+              
+              let dataList = res.data.list;
+              dataList.forEach(ele => {
+                if(ele.type == "智慧校园"){
+                  that.activeCont1.nowSeason = ele.now_season_jf
+                  that.activeCont1.nextSeason = ele.next_season_jf
+                }else if(ele.type == "智慧食堂"){
+                  that.activeCont2.nowSeason = ele.now_season_jf
+                  that.activeCont2.nextSeason = ele.next_season_jf
+                }else if(ele.type == "智慧政务"){
+                  that.activeCont3.nowSeason = ele.now_season_jf
+                  that.activeCont3.nextSeason = ele.next_season_jf
+                }else if(ele.type == "智慧党建"){
+                  that.activeCont4.nowSeason = ele.now_season_jf
+                  that.activeCont4.nextSeason = ele.next_season_jf
+                }else if(ele.type == "联盟秒杀"){
+                  that.activeCont5.nowSeason = ele.now_season_jf
+                  that.activeCont5.nextSeason = ele.next_season_jf
+                }else if(ele.type == "扶贫商城"){
+                  that.activeCont6.nowSeason = ele.now_season_jf
+                  that.activeCont6.nextSeason = ele.next_season_jf
+                }
+              });
+
+            }else if(res.data.errno == 11){
+              that.$toast(res.data.errmsg)
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          })
+        },
+
+        // 现金券明细
+        goDetail() {
+          window.location.href = 'quan-detail.html'
+        },
+        // 现金券兑换
+        goExchange(){
+          window.location.href = 'exchange.html'
+        },
+        // 活动规则
+        ruleQuanDetail() {
+          window.location.href = 'rule-quan.html'
+        },
+        ruleHuiDetail(){
+          window.location.href = 'rule-hui.html'
+        },
+
+        // 逛校园
+        guangXiao(){
+          window.location.href = 'https://campus.abchina.com/mobileBank/'
+        },
+        // 逛校园--去缴费
+        goPayX(){
+          window.location.href = 'https://enjoy.abchina.com/jf-web/index'
+        },
+
+        // 吃餐厅
+        guangCan(){
+          window.location.href = 'https://abc.qzhlkj.net/public/index.html?fromExchange=fromExchange#/page/index'
+        },
+        // 吃餐厅--去缴费
+        goPayC(){
+          window.location.href = 'https://enjoy.abchina.com/jf-web/index'
+        },
+
+        // 惠民生
+        guangMin(){
+          window.location.href = 'https://www.abchina.com/web2native|channel=zw_zone*menu=zw_zone*step=01*param=1121'
+        },
+        // 惠民生--去缴费
+        goPayH(){
+          window.location.href = 'https://enjoy.abchina.com/jf-web/index'
+        },
+
+        // 智党建
+        guangDang(){
+          window.location.href = 'https://enjoy.abchina.com/jf-web/epayType?typeCode=1201'
+        },
+        // 智党建--去缴费
+        goPayD(){
+          window.location.href = 'https://enjoy.abchina.com/jf-web/epayType?typeCode=1201'
+        },
+
+        goDraw(){
+          this.$toast("活动未开始，敬请期待")
+        },
+
+        // 去秒杀
+        goSeckill() {
+          window.location.href = 'https://szxc.ha.abchina.com/msp-web-ms/hnseckill/login'
+        },
+
+        // 老家来信
+        goHome(){
+          window.location.href = 'exchange-pro.html'
+        },
+
+
+        getCode() {
+          var number = this.getProjectNum() + Math.floor(Math.random() * 10000);
+          // console.log(number)
+          var urlStr = "https://www.abchina.com/luascript/oauthLogin/{\"client_id\":\"af3e1af3-edcc-4895-b9e8-823fac62a523\",\"redirect_uri\":\"https://szxc.ha.abchina.com/yxhl/activity.html\",\"state\":\"" + number + "\",\"scope\":\"custinfo,mreginfo\",\"response_type\":\"code\"}";
+          
+          window.location.href = urlStr;
+          
+        },
+        getToken() {
+          var that = this;
+          axios({
+            method: 'post',
+            url: that.JumpUrl.authIntegral,
+            data: {
+              code: that.codeId
+            }
+          }).then(function (resp) {
+            // alert("获取token接口--" + resp.data.errno)
+              if (resp.data.errno == 0) {
+                that.$toast(resp.data.errmsg)
+                that.token1 = resp.data.token;
+                that.getBanner();
+                that.getData();
+                
+                localStorage.setItem('token1', resp.data.token)
+                localStorage.setItem('ifreg', resp.data.if_reg)
+                if(resp.data.if_reg != 1){ // 是否报名注册：0否，1是
+                  window.location.href = 'login.html'
+                }
+              }else if(resp.data.errno ==11){ // 不能参与该活动
+                that.$dialog.alert({
+                  message: resp.data.errmsg,
+                }).then(() => {
+                  AlipayJSBridge.call('abcExitWebAndBackToHome');
+                });
+                // that.$toast(resp.data.errmsg)
+              }else{
+                // that.$toast(resp.data.errmsg)
+                that.$dialog.confirm({
+                  message: '提醒：' + resp.data.errmsg,
+                }).then(() => {
+                    that.getCode()
+                }).catch(() => {
+                    AlipayJSBridge.call('abcExitWebAndBackToHome');
+                });
+                
+              }
+            }).catch(function (error) {
+              that.loadingShow = false
+              alert("error---" + error)
+              //请求失败
+              console.log('error', error);
+            })
+        },
+        // 获取当前日期
+        getProjectNum() {
+          const projectTime = new Date() // 当前中国标准时间
+          const Year = projectTime.getFullYear() // 获取当前年份 支持IE和火狐浏览器.
+          const Month = projectTime.getMonth() + 1 // 获取中国区月份
+          const Day = projectTime.getDate() // 获取几号
+          var CurrentDate = String(Year)
+          if (Month >= 10) { // 判断月份和几号是否大于10或者小于10
+            CurrentDate += Month
+          } else {
+            CurrentDate += '0' + Month
+          }
+          if (Day >= 10) {
+            CurrentDate += Day
+          } else {
+            CurrentDate += '0' + Day
+          }
+          return CurrentDate
+        }
+        
+
+      },
+      created() {
+        if (window.navigator.userAgent.indexOf('Bankabc/Portal') > -1){
+          this.ifNewBank = true
+        }else{
+          this.ifNewBank = false
+        }
+		
+		 // 判断APP是否已登录
+		  AlipayJSBridge.call('abcGetInfo', {
+		    name:'mbLoginStatus'
+		  }, function(result){
+		    if(result.mbLoginStatus != '1'){
+		      // alert('未登录'); 
+		      AlipayJSBridge.call('startApp',{ // 调起掌银登录
+		        appId:'31009112',// 固定值
+		        param:{
+		          showProgress:'NO', 
+		          backBehavior:'back', 
+		          //jumpFrom实现登录后跳转，可选  
+		          //business_login 固定传0  
+		          //business_kind 1 离线包 2 联机H5 
+		          //url business_kind为1时是appid business_kind为2是H5链接  
+		          jumpFrom:{
+		            business_kind:'2',
+		            business_login:'0',
+		            url:'https://szxc.ha.abchina.com/yxhl/activity.html'
+		          } 
+		        },  
+		      },function(result){ 
+		          // 已调起登录页面 
+		      });
+		    }
+		  })
+		  
+        if (localStorage.getItem("token1") && (localStorage.getItem("ifreg") == 1)) {
+          this.token1 = localStorage.getItem("token1")
+          this.ifreg = localStorage.getItem("ifreg")
+        } else {
+          this.codeId = strToBinary(getQueryString('code')); //将字符串转化为二进制的数据
+          // alert(this.codeId)
+          if (this.codeId) {
+            this.getToken()
+          } else {
+            this.getCode()
+          }
+        }
+      },
+      watch(){
+        if(this.token1){
+          this.getBanner()
+          this.getData();
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

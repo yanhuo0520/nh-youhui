@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>商品详情</title>
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <!-- 引入样式文件 -->
+  <link rel="stylesheet" href="index.css" />
+  <!-- 引入 Vue 和 Vant 的 JS 文件 -->
+  <script src="axios.min.js"></script>
+  <script src="vue.min.js"></script>
+  <script src="vant.min.js"></script>
+  <script src="alipayjsapi.min.js"></script>
+  <script src="https://gw.alipayobjects.com/as/g/h5-lib/alipayjsapi/3.1.1/alipayjsapi.min.js"></script>
+
+  <!-- 公共文件 -->
+  <script src="mainPublic.js"></script>
+  <link rel="stylesheet" href="public.css" />
+  <!-- 自定义样式 -->
+  <style>
+    html,
+    body {
+      height: 100%;
+      background: #f4f4f4;
+    }
+    img{
+      max-width: 100%;
+    }
+
+    .shopDetailUn {
+      font-size: 14px;
+      height: 100%;
+      background: #F4F4F4 linear-gradient(180deg,#00c4ac 47%, #f5f5f6) no-repeat;
+      background-size: 100% 300px;
+    }
+
+    /* 标题 */
+    .van-nav-bar--fixed{
+      z-index: 999;
+    }
+    .van-nav-bar__content {
+      background: #00c4ac;
+    }
+
+    .van-nav-bar .van-icon {
+      color: #ffffff;
+    }
+
+    .van-nav-bar__title {
+      color: #ffffff;
+    }
+
+    .van-hairline--bottom::after {
+      border-bottom-width: 0
+    }
+    .van-nav-bar__right img{
+      width: 26px;
+    } 
+
+    .content{
+      padding: 90px 10px 0 10px;
+    }
+    .content.ifNewBank{
+      padding-top: 40px;
+    }
+    .change-cont{
+      background: #ffffff;
+      border-radius: 10px;
+      text-align: center;
+      padding-bottom: 25px;
+    }
+    .change-cont .logo-img{
+      width: 70px;
+      margin: -30px auto 10px auto;
+      display: inline-block;
+      background: #ffffff;
+      border-radius: 50%;
+      padding: 7px;
+    }
+    .change-cont .main-img img{
+      max-width: 160px;
+      max-height: 160px;
+    }
+    .change-cont .shop-title{
+      padding: 0 20px;
+      margin-top: 10px;
+      color: #353535;
+      font-size: 16px;
+    }
+    .change-cont .main-title{
+      margin-top: 20px;
+      color: #999;
+    }
+    .change-cont .input{
+      width: 80%;
+      background: #f9f9f9;
+      border: 1px dashed #c0c4cc;
+      height: 42px;
+      line-height: 42px;
+      padding: 0 10px;
+      text-align: center;
+      margin-top: 15px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .change-cont .change-btn{
+      color: #fff;
+      background: linear-gradient(180deg,#00dcc0, #00c4ac 80%);
+      border-radius: 20px;
+      margin-top: 25px;
+      padding: 8px 18px;
+      display: inline-block;
+    }
+    .change-cont .change-btn.disable-change{
+      color: #fff;
+      background: #e2e2e2;
+    }
+
+    /* 规则 */
+    .change-tip-title{
+      margin-top: 20px;
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+    }
+    .change-tip-title span{
+      margin-left: 5px;
+    }
+    .change-tip-cont{
+      margin-top: 5px;
+      font-size: 12px;
+    }
+
+    /* 弹框 */
+    .van-popup--center{
+      line-height: 30px;
+      text-align: center;
+      width: 80%;
+      border-radius: 10px;
+    }
+    .popup-cont{
+      padding: 30px 0 20px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .popup-cont .van-icon{
+      font-size: 54px;
+      color: #00c4ac;
+    }
+    .popup-cont .main-tip{
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .van-popup--center .btn{
+      font-size: 16px;
+      line-height: 42px;
+    }
+	
+	/* 回到首页悬浮按钮 */
+	.goIndexTip{
+		position: fixed;
+		right: 5px;
+		top: 76%;
+		border-radius: 50%;
+		height: 48px;
+		width: 48px;
+		display: grid;
+		text-align: center;
+		font-size: 12px;
+		padding: 6px;
+		background: #FFFFFF;
+		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+	}
+	.goIndexTip img{
+		width: 20px;
+		height: 20px;
+		margin: 0 auto;
+	}
+
+  </style>
+</head>
+
+<body>
+  <div id="shopDetailUn" class="shopDetailUn">
+    <van-nav-bar v-if="!ifNewBank" title="商品详情" fixed left-arrow  @click-left="onClickLeft">
+      <!-- <template #right>
+        <img src="./images/close.png" />
+      </template> -->
+    </van-nav-bar>
+    <div class="content" :class="{'ifNewBank': ifNewBank}">
+      <div class="change-cont">
+        <div class="logo-img">
+          <img src="./images/logo.png" />
+        </div>
+        <div class="main-img">
+          <img :src="detail.thumb" />
+        </div>
+        <p class="shop-title">{{detail.goods_name}}</p>
+        <!-- 手机充值兑换 -->
+        <template v-if="goods_type == 2">
+          <p class="main-title">请输入您的手机号</p>
+          <input type="num" v-model="phone" placeholder="点击输入" class="input" /><br/>
+        </template>
+        <!-- 券码类 -->
+        <template v-if="goods_type == 1">
+          <div v-if="code">
+            <p class="main-title">商品兑换码</p>
+            <input type="num" v-model="code" placeholder="点击输入" readonly class="input" /><br/>
+            <p class="change-btn" @click="copyBtn()">点击复制兑换码</p>
+          </div>
+        </template>
+        
+        <p v-if="isClick && !code" class="change-btn" @click="change(detail.jf)">确定兑换</p>
+        <p v-if="!isClick && !code" class="change-btn disable-change">{{seconds}}秒后可再次兑换</p>
+      </div>
+      <p class="change-tip-title" v-if="detail.content"><van-icon name="info-o" /><span>兑换说明</span></p>
+      <p v-html="detail.content" class="change-tip-cont"></p>
+      
+    </div>
+
+    <van-popup v-model="show" :close-on-click-overlay="closeOverlay">
+      <div class="popup-cont">
+        <van-icon name="checked"></van-icon>
+        <p class="main-tip">兑换成功</p>
+        <p class="tip" v-if="goods_type == 2">话费将在十五个工作日内到账</p>
+        <p class="tip" v-if="goods_type == 1">复制兑换码前往对应APP激活权益</p>
+      </div>
+      <p class="btn" @click="successClose()">我知道了</p>
+      
+    </van-popup>
+	
+	<div class="goIndexTip" @click="goIndexTip()">
+		<img src="images/index.png" />
+		首页
+	</div>
+  </div>
+
+  <script>
+    // 在 #app 标签下渲染一个按钮组件
+    new Vue({
+      el: '#shopDetailUn',
+      data: {
+        JumpUrl: {
+          detailUrl: baseUrl('/api/nhunion/goods_detail'),  // 积分商城--商品详情
+          orderUrl: baseUrl('/api/nhunion/submit_order'),  // 积分商城--积分兑换
+        },
+        phone: '',
+        code: '',
+        // token1: localStorage.getItem("token1"),
+        token1: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjM4OTk0NjUsImp0aSI6IjUwOGIwMzdlMDlmNTFhNWJiMzFhNGNjOTBiNjYwYTk5IiwiaXNzIjoiMTI3LjAuMC4xIiwibmJmIjoxNjIzODk5NDY1LCJleHAiOjE2MzcwMzk0NjUsImRhdGEiOnsibmhfaWQiOjM0Nn19.wnFVrFWxC01GNdHhRYHNMhJ9eDrueqWhA0Er_87X5Ps',
+        ifNewBank: true,
+        
+        closeOverlay:false,
+        show: false,
+        goods_id: '',
+        if_sheer: '', 
+        goods_type: '',
+        detail: '',
+        seconds: 10,
+        isClick: true, // 初始值为true，一进入点击事件里，将isClick赋值为false,利用setTimeout方法设置10分钟后改成true。
+      },
+      mounted() {
+        if(this.ifNewBank){
+          ready(function(e){
+           // 判断APP是否已登录
+            AlipayJSBridge.call('abcGetInfo', {
+              name:'mbLoginStatus'
+            }, function(result){
+              if(result.mbLoginStatus != '1'){
+                // alert('未登录'); 
+                AlipayJSBridge.call('startApp',{ // 调起掌银登录
+                  appId:'31009112',// 固定值
+                  param:{
+                    showProgress:'NO', 
+                    backBehavior:'back', 
+                    //jumpFrom实现登录后跳转，可选  
+                    //business_login 固定传0  
+                    //business_kind 1 离线包 2 联机H5 
+                    //url business_kind为1时是appid business_kind为2是H5链接  
+                    jumpFrom:{
+                      business_kind:'2',
+                      business_login:'0',
+                      url:'https://szxc.ha.abchina.com/yxhl/shop-detail-un.html'
+                    } 
+                  },  
+                },function(result){ 
+                    // 已调起登录页面 
+                });
+              }
+            })
+          })
+        }
+
+
+        document.addEventListener('optionMenu', function(e) {
+          if(e.data.index == 0) {
+            // 用户点击了第一个按钮。setOptionMenu 方法中，设置了第一个按钮为“关闭”
+            AlipayJSBridge.call('abcExitWebAndBackToHome');
+          }
+        })
+        this.getDetail();
+      },
+      methods: {
+        onClickLeft() {
+          window.history.go(-1);
+        },
+        goIndexTip(){
+          window.location.href = 'activity.html'
+        },
+        getDetail(){
+          let that = this;
+          axios({
+            method: 'post',
+            url: that.JumpUrl.detailUrl,
+            data: {
+              token: that.token1,
+              goods_id: that.goods_id,
+            }
+          }).then(function(res){
+            // console.log(res)
+            if(res.data.errno == 0){
+              that.detail = res.data.data;
+              that.if_sheer = res.data.data.if_sheer
+            }else if(res.data.errno == 11){
+              that.$toast(res.data.errmsg)
+              setTimeout(function(){
+                window.location.href = 'activity.html'
+              }, 1000)
+              
+            }else if(res.data.errno == 100){ // /积分加钱兑换，需要去支付
+              that.$toast(res.data.errmsg) 
+
+            }else{
+              that.$toast(res.data.errmsg)
+            }
+          })
+        },
+       
+        add() {
+          this.isClick = false
+          this.seconds = 9
+          let time = setInterval(() => {
+            this.seconds--;
+            if(this.seconds <= 0){
+              this.isClick = true
+              clearInterval(time)
+            }
+          }, 1000)
+        },
+        change(jf){
+          let that = this;
+          let reg = /^1[0-9]{10}$/;
+          if (that.phone.length == 0 && that.goods_type == 2) {
+            that.$toast("请输入手机号！");
+            return;
+          } else if ((that.phone.length <= 10 || !reg.test(that.phone)) && that.goods_type == 2) {
+            that.$toast("手机号格式错误！");
+            return;
+          }
+          // if(that.if_sheer == 0){ // 积分加钱兑换，需要去确认订单页面，纯积分兑换可直接兑换
+          //   window.location.href = "confirm-order.html?goods_id=" + that.goods_id + '&phone=' + that.phone + '&goods_type=' + that.goods_type;;
+          //   return
+          // }
+          that.$dialog.confirm({
+            message: '本次兑换需消耗' + jf + '现金券，确定后现金券不予退回',
+          }).then(()=>{
+            if(that.isClick){
+              axios({
+                method: 'post',
+                url: that.JumpUrl.orderUrl,
+                data: {
+                  token: that.token1,
+                  goods_id: that.goods_id,
+                  address_id: '',
+                  mobile: that.phone
+                }
+              }).then(function(res){
+                that.add();
+                // console.log(res)
+                if(res.data.errno == 0){
+                  that.show = true
+                  if(that.goods_type == 1){
+                    that.code = res.data.qm
+                  }
+                }else if(res.data.errno == 11){
+                  that.$toast(res.data.errmsg)
+                  setTimeout(function(){
+                    window.location.href = 'activity.html'
+                  }, 1000)
+                  
+                }else{
+                  that.$toast(res.data.errmsg)
+                }
+              })
+              that.isClick = false
+              setTimeout(()=>{
+                that.isClick = true;
+              }, 10000)
+            }
+          })
+          
+        },
+
+        // 复制兑换码
+        copyBtn(){
+          let input = document.createElement("input")
+          input.value = this.code;
+          document.body.appendChild(input)
+          input.select()
+          document.execCommand("Copy")
+          document.body.removeChild(input)
+          this.$toast("复制成功")
+        },
+		successClose() {
+          this.show = false
+        },
+
+      },
+      created() {
+        if (window.navigator.userAgent.indexOf('Bankabc/Portal') > -1){
+          this.ifNewBank = true
+        }else{
+          this.ifNewBank = false
+        }
+        this.goods_id = getQueryString('id')
+        this.goods_type = getQueryString('goods_type')
+      }
+    });
+  </script>
+</body>
+
+</html>

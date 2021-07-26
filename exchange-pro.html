@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>老家来信</title>
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+  <!-- 引入样式文件 -->
+  <link rel="stylesheet" href="index.css" />
+  <!-- 引入 Vue 和 Vant 的 JS 文件 -->
+  <script src="axios.min.js"></script>
+  <script src="vue.min.js"></script>
+  <script src="vant.min.js"></script>
+  <script src="alipayjsapi.min.js"></script>
+	<script src="DataCollector_mobileBank.js"></script>
+
+  <!-- 公共文件 -->
+  <script src="mainPublic.js"></script>
+  <link rel="stylesheet" href="public.css" />
+  <!-- 自定义样式 -->
+  <style>
+    html,
+    body {
+      height: 100%;
+      background: #003939;
+    }
+
+    .homeChange {
+      font-size: 14px;
+      height: 100%;
+    }
+
+    /* 标题 */
+    .van-nav-bar--fixed {
+      z-index: 999;
+    }
+
+    .van-nav-bar__content {
+      background: #00c4ac;
+    }
+
+    .van-nav-bar .van-icon {
+      color: #ffffff;
+    }
+
+    .van-nav-bar__title {
+      color: #ffffff;
+    }
+
+    .van-hairline--bottom::after {
+      border-bottom-width: 0
+    }
+
+    .van-nav-bar__right img {
+      width: 26px;
+    }
+
+    .top-content {
+      background: linear-gradient(137deg,#02c5b7 3%, #009174 95%);
+      background-size: 100% 160px;
+      height: 90px;
+    }
+    .top-content img{
+      width: 100%;
+      height: 130px;
+    }
+    .miao-cont{
+      margin-top: 60px;
+      height: 135px;
+      background: linear-gradient(133deg,#f5515f 3%, #9f041b 95%);
+      border-radius: 30px;
+      box-shadow: 0px 2px 12px 0px rgba(0,0,0,0.50); 
+      position: relative;
+    }
+    .miao-cont img{
+      position: absolute;
+      top: -25px;
+      left: 0;
+      width: 100%;
+      height: 96px;
+    }
+    .miao-cont .title{
+      position: absolute;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      text-align: center;
+      background-image: linear-gradient(123deg,#fff7e8 4%, #e2be76 90%);
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+    }
+    .miao-cont .m-title{
+      top: -8px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .miao-cont .desc{
+      top: 22px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .miao-cont .desc.ifMix{
+      font-size: 12px;
+    }
+    .miao-cont .go-cont{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 85px 15px 0 15px;
+      color: #ffffff;
+      font-weight: bold;
+    }
+    .miao-cont .go-cont.ifMix{
+      font-size: 12px;
+    }
+    .miao-cont .go-cont span{
+      font-size: 14px;
+      background: #000000;
+      border-radius: 4px;
+      text-align: center;
+      display: inline-block;
+      padding: 2px 3px 2px 2px;
+      margin: 0 2px;
+      min-width: 20px;
+    }
+    .miao-cont .go-cont .btn{
+      color: #6E3400;
+      background: linear-gradient(313deg,#b57c39 0%, #ffddb2 85%);
+      border-radius: 24px;
+      box-shadow: 0px 1px 9px 0px rgba(0,0,0,0.50); 
+      padding: 5px 10px;
+      font-size: 13px;
+    }
+    .miao-cont .go-cont.ifMix .btn{
+      font-size: 12px;
+      padding: 5px;
+    }
+
+
+    .nong-cont{
+      margin-top: 30px;
+      height: 60px;
+      box-shadow: 0px 2px 12px 0px rgba(0,0,0,0.50); 
+      position: relative;
+    }
+    .nong-cont img{
+      position: absolute;
+      top: -25px;
+      left: 0;
+      width: 100%;
+      height: 90px;
+    }
+    .nong-cont .title{
+      position: absolute;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      text-align: center;
+      background-image: linear-gradient(123deg,#fff7e8 4%, #e2be76 90%);
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+    }
+    .nong-cont .m-title{
+      top: -12px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .nong-cont .desc{
+      top: 20px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .conent {
+      margin: 10px;;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    .shop {
+      position: relative;
+      width: 48.2%;
+      margin-top: 15px;
+      background: #ffffff;
+      display: inline-block;
+      border: 3px solid;
+      border-image: linear-gradient(180deg, #00d2c4, #00897c) 6 6;
+      border-radius: 5px;
+    }
+
+    .shop:nth-child(2n) {
+      margin-left: 2%;
+    }
+
+    .shop .bg-cont {
+      padding: 5px 10px;
+    }
+
+    .shop .img-cont {
+      text-align: center;
+      position: relative;
+      height: 0;
+      padding-bottom: 100%;
+    }
+    .shop .shop-img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .shop .end-cont {
+      padding: 0 10px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.6);
+    }
+    .shop .end-cont p{
+      color: #ffffff;
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 5px;
+      margin-top: 50%;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .shop p {
+      margin-top: 3px;
+    }
+
+    .shop .address{
+      position: absolute;
+      top: -3px;
+      left: 0;
+      color: #ffffff;
+      font-size: 13px;
+      border-bottom-right-radius: 10px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 2px 10px 2px 5px;
+    }
+    .shop .name {
+      color: #353535;
+      height: 36px;
+      line-height: 18px;
+      overflow: hidden;
+      text-overflow: -o-ellipsis-lastline;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .shop .old-price {
+      color: #CCCCCC;
+      font-size: 13px;;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .shop .old-price span{
+      font-size: 12px;
+      text-decoration: line-through;
+    }
+    .shop .new-price {
+      color: #FF2814;
+      font-weight: bold;
+      font-size: 16px;;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .shop .new-price span{
+      font-size: 12px;
+    }
+
+    .shop .change {
+     position: absolute;
+     right: -3px;
+     bottom: -6px;
+     line-height: 16px;
+     color: #fff;
+     padding: 10px 0 0 15px;
+     width: 50px;
+     height: 50px;
+     background: url(./images/bg_btn.png) no-repeat;
+     background-size: 100%;
+    }
+    .shop .change.change-end{
+      background: url(./images/bg_btn_end.png) no-repeat;
+      background-size: 100%;
+    }
+
+    .shop .change img {
+      width: 18px;
+      vertical-align: middle;
+      margin-top: -2px;
+      margin-left: 5px;
+    }
+
+    .shop .change.end-change {
+      color: #fff;
+      background: #eeeeee;
+    }
+
+    .null {
+      padding: 20px 0 10px 0;
+      color: #CCCCCC;
+      text-align: center;
+    }
+
+    .loading {
+      width: 100%;
+      text-align: center;
+    }
+
+    /* 回到首页悬浮按钮 */
+    .goIndexTip {
+      position: fixed;
+      right: 5px;
+      top: 76%;
+      border-radius: 50%;
+      height: 48px;
+      width: 48px;
+      display: grid;
+      text-align: center;
+      font-size: 12px;
+      padding: 6px;
+      background: #FFFFFF;
+      box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    .goIndexTip img {
+      width: 20px;
+      height: 20px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="homeChange" class="homeChange">
+    <van-nav-bar v-if="!ifNewBank" title="老家来信" fixed left-arrow @click-left="onClickLeft">
+      <!-- <template #right>
+        <img src="./images/close.png" />
+      </template> -->
+    </van-nav-bar>
+    <div class="top-content" :class="{'ifNewBank': ifNewBank}">
+      <img src="./images/shop.png" />
+    </div>
+    
+    <div class="conent">
+      <div class="miao-cont">
+        <p class="m-title title">周四·秒杀</p>
+        <p class="desc title" :class='{"ifMix": ifSmall}'>中午12:00</p>
+        <img src="./images/miaoshao.png" />
+        <div class="go-cont" v-if="(ifEmpety && !ifThursday) || (ifThursday && ifThuAm)" :class='{"ifMix": ifSmall}'>
+          <p>距离秒杀开始还剩 <span>{{day}}</span>:<span>{{hour}}</span>:<span>{{minute}}</span>:<span>{{second}}</span> </p>
+          <p class="btn" @click="goSeckill()">去秒杀</p>
+        </div>
+        <div class="go-cont" v-else>
+          <p style="font-size: 16px;">秒杀进行中</p>
+          <p class="btn" @click="goSeckill()">去秒杀</p>
+        </div>
+      </div>
+      <div class="nong-cont">
+        <p class="m-title title">特惠农产</p>
+        <p class="desc title">超多折扣享不停</p>
+        <img src="./images/nong.png" />
+      </div>
+      <div class="shop-cont" v-if="list.length > 0">
+        <div class="shop" v-for="(item, index) in list" :key="index" @click="exchange(item.storage, item.nh_link)">
+          <div class="img-cont">
+            <img :src="item.thumb" class="shop-img" />
+            <div v-if="item.storage <= 0" class="end-cont">
+              <p>已售罄</p>
+            </div>
+          </div>
+          <div class="bg-cont">
+            <p class="address">{{item.province_name}}</p>
+            <p class="name">{{item.goods_name}}</p>
+            <p class="old-price">原价 <span>{{item.price}}</span></p>
+            <p class="new-price"><span>¥</span>{{item.oldPriceArray[0]}}.<span>{{item.oldPriceArray[1]}}</span></p>
+          </div>
+          <p class="change" v-if="item.storage > 0">立即<br />抢购</p>
+          <p class="change change-end" v-if="item.storage <= 0">立即<br />抢购</p>
+        </div>
+
+        <div class="loading" v-if="ifLoading">
+          <van-loading type="spinner" size="24px" />
+        </div>
+
+      </div>
+      
+      <div v-if="list.length == 0 && nullMore">
+        <p class="null">暂无数据</p>
+      </div>
+      <div v-else-if="!ifLoading">
+        <p class="null nullMore2">没有更多了</p>
+      </div>
+    </div>
+
+    <div class="goIndexTip" @click="goIndexTip()">
+      <img src="images/index.png" />
+      首页
+    </div>
+  </div>
+
+  <script>
+		dataCollection_HTML("河南_食堂_首页");
+    // 在 #app 标签下渲染一个按钮组件
+    new Vue({
+      el: '#homeChange',
+      data: {
+        JumpUrl: {
+          goodsList: baseUrl('/api/nhunion/laojia_goods_list'),  // 积分商城--商品列表
+        },
+        // token1: localStorage.getItem("token1"),
+        token1: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjM4OTk0NjUsImp0aSI6IjUwOGIwMzdlMDlmNTFhNWJiMzFhNGNjOTBiNjYwYTk5IiwiaXNzIjoiMTI3LjAuMC4xIiwibmJmIjoxNjIzODk5NDY1LCJleHAiOjE2MzcwMzk0NjUsImRhdGEiOnsibmhfaWQiOjM0Nn19.wnFVrFWxC01GNdHhRYHNMhJ9eDrueqWhA0Er_87X5Ps',
+        ifNewBank: true,
+
+        page: 1, //初始化当前页
+        pageSize: 10,
+        endpage: 1, //假数据，默认总共两页数据
+        loading: false, //是否为加载中状态
+        list: [],
+        nullMore: true,
+        ifLoading: false,
+        fullWidth: document.documentElement.clientWidth,
+        ifSmall: false,
+        ifThursday: false, // 是否是周四
+        ifThuAm: false, // 是否是周四上午
+        ifEmpety: false, // 库存是否为0
+        curStartTime: '', // 活动开始时间
+        day: '0',
+        hour: '00',
+        minute: '00',
+        second: '00',
+      },
+      mounted() {       
+        if (this.ifNewBank) {
+          ready(function (e) {
+            // 判断APP是否已登录
+            AlipayJSBridge.call('abcGetInfo', {
+              name: 'mbLoginStatus'
+            }, function (result) {
+              if (result.mbLoginStatus != '1') {
+                // alert('未登录'); 
+                AlipayJSBridge.call('startApp', { // 调起掌银登录
+                  appId: '31009112',// 固定值
+                  param: {
+                    showProgress: 'NO',
+                    backBehavior: 'back',
+                    //jumpFrom实现登录后跳转，可选  
+                    //business_login 固定传0  
+                    //business_kind 1 离线包 2 联机H5 
+                    //url business_kind为1时是appid business_kind为2是H5链接  
+                    jumpFrom: {
+                      business_kind: '2',
+                      business_login: '0',
+                      url: 'https://szxc.ha.abchina.com/yxhl/exchange.html'
+                    }
+                  },
+                }, function (result) {
+                  // 已调起登录页面 
+                });
+              }
+            })
+          })
+        }
+
+        document.addEventListener('optionMenu', function (e) {
+          if (e.data.index == 0) {
+            // 用户点击了第一个按钮。setOptionMenu 方法中，设置了第一个按钮为“关闭”
+            AlipayJSBridge.call('abcExitWebAndBackToHome');
+          }
+        })
+        if(this.fullWidth < 370){
+          this.ifSmall = true
+        }
+        this.getSkillList()
+        let date1 = new Date();
+        let date2 = new Date(date1);
+        if(date1.getDay() == 4){ // 当前是周四
+          this.ifThursday = true
+          if(date1.getHours() < 12){
+            this.ifThuAm = true;
+          }
+          let time2 = date1.getFullYear()+"/"+(date1.getMonth()+1)+"/"+date1.getDate() + ' 12:00:00';
+          this.curStartTime = time2
+        }else if(date1.getDay() < 4){ // 现在是本周周四之前  
+		      date2.setDate(date1.getDate() + (4- date1.getDay()));
+          let time2 = date2.getFullYear()+"/"+(date2.getMonth()+1)+"/"+date2.getDate() + ' 12:00:00';
+          this.curStartTime = time2
+        }else{ // 本周是周四之后，获取下个周四
+		      date2.setDate(date1.getDate() + (11 - date1.getDay())); // 7-date1.getDay()+4
+          let time2 = date2.getFullYear()+"/"+(date2.getMonth()+1)+"/"+date2.getDate() + ' 12:00:00';
+          this.curStartTime = time2
+        }
+        this.counTime()
+
+        // 滚动监听触发scrollBottom事件
+        window.addEventListener("scroll", this.scrollBottom, true);
+        this.getList();
+      },
+      methods: {
+        onClickLeft() {
+          window.location.href = 'activity.html'
+        },
+        goIndexTip() {
+          window.location.href = 'activity.html'
+        },
+        // 滚动监听
+        scrollBottom() {
+          // 	滚动到页面底部时翻页功能，当前页小于总页数时触发
+          if (this.page < this.endpage) {
+            let scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight); /*文档完整的高度*/
+            let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;  //滚动高度
+            let clientHeight = document.documentElement.clientHeight; /*当前可视高度*/
+            let toBottom = scrollHeight - clientHeight - scrollTop;
+            if (toBottom < 10 && !this.loading) {
+              this.loading = true; //触发滚动机制，加载状态改变
+              this.page++ //当前页加1
+              this.getList()
+            }
+          }
+        },
+        getList() {
+          let that = this;
+          that.ifLoading = true
+
+          axios({
+            method: 'post',
+            url: that.JumpUrl.goodsList,
+            data: {
+              token: that.token1,
+              page: that.page,
+              size: that.pageSize,
+              cate_id: "2" // 特惠农产
+            }
+          }).then(function (res) {
+            that.ifLoading = false
+            that.loading = false
+            if (res.data.errno == 0) {
+              that.endpage = res.data.total_page
+              let arrayDate = res.data.data;
+              arrayDate.forEach(ele => {
+                ele.oldPriceArray = [];
+                ele.oldPriceArray = ele.retail_price.split(".");
+              });
+              if (res.data.total_page == 1) {
+                that.list = res.data.data
+                that.nullMore = true
+              } else if (res.data.total_page > that.page) {
+                that.list.push(...res.data.data)
+              } else if (that.page == res.data.total_page) {
+                that.list.push(...res.data.data)
+                that.nullMore = true
+              }
+
+            } else if (res.data.errno == 11) {
+              that.$toast(res.data.errmsg)
+              setTimeout(function () {
+                window.location.href = 'activity.html'
+              }, 1000)
+
+            } else {
+              that.$toast(res.data.errmsg)
+            }
+          })
+
+
+        },
+        // 获取秒杀商品库存
+        getSkillList() {
+          let that = this;
+          axios({
+            method: 'post',
+            url: that.JumpUrl.goodsList,
+            data: {
+              token: that.token1,
+              page: that.page,
+              size: that.pageSize,
+              cate_id: "1" // 每日秒杀
+            }
+          }).then(function (res) {
+            if (res.data.errno == 0) {
+              if(!res.data.all_storage){
+                that.ifEmpety = true
+              }
+            } else if (res.data.errno == 11) {
+              that.$toast(res.data.errmsg)
+              setTimeout(function () {
+                window.location.href = 'activity.html'
+              }, 1000)
+            } else {
+              that.$toast(res.data.errmsg)
+            }
+          })
+
+
+        },
+        // 去秒杀
+        goSeckill(){
+          window.location.href = 'exchange-seckill.html'
+        },
+        // 立即兑换
+        exchange(storage, nh_link) {
+          if(storage > 0 && nh_link){
+            window.location.href = nh_link
+          }
+        },
+        counTime(){
+          // 获取当前时间
+          let date = new Date()
+          let now = date.getTime()
+          // 设置截止时间
+          let endDate = new Date(this.curStartTime) // this.curStartTime需要倒计时的日期
+          let end = endDate.getTime()
+          // 时间差
+          let leftTime = end - now
+          if (leftTime >= 0) { // 定义变量 d,h,m,s保存倒计时的时间
+            this.day = Math.floor(leftTime / 1000 / 60 / 60 / 24) // 天
+            let h = Math.floor(leftTime / 1000 / 60 / 60 % 24) // 时
+            this.hour = h < 10 ? '0' + h : h
+            let m = Math.floor(leftTime / 1000 / 60 % 60)  // 分
+            this.minute = m < 10 ? '0' + m : m
+            let s = Math.floor(leftTime / 1000 % 60) // 秒
+            this.second = s < 10 ? '0' + s : s
+
+          } else {
+            this.day = 0
+            this.hour = '00'
+            this.minute = '00'
+            this.second = '00'
+          }
+          // 等于0的时候不调用
+          if (Number(this.hour) === 0 && Number(this.day) === 0 && Number(this.min) === 0 && Number(this.second) === 0) {
+            this.ifThursday = true
+            this.ifThuAm = false
+            return
+          } else {
+          // 递归每秒调用countTime方法，显示动态时间效果,
+            setTimeout(this.counTime, 1000)
+          }
+        },
+      },
+      created() {
+        if (window.navigator.userAgent.indexOf('Bankabc/Portal') > -1) {
+          this.ifNewBank = true
+        } else {
+          this.ifNewBank = false
+        }
+
+      },
+      beforeDestroy() {
+        if (this.timer) {
+          clearInterval(this.timer); // 在Vue实例销毁前，清除我们的定时器
+        }
+      }
+
+    });
+  </script>
+</body>
+
+</html>
